@@ -1,0 +1,46 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /identity
+
+spring:
+  application:
+    name: identity-service
+  datasource:
+    url: "jdbc:mysql://localhost:3306/BookNest_Identity"
+    username: root
+    password: 5404
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        enable_lazy_load_no_trans: true
+        format_sql: true
+    show-sql: false
+  profiles:
+    active: prod
+
+#logging:
+#  level:
+#    org.springframework.transaction: debug
+#    org.springframework.security: debug
+
+outbound:
+  redirect-uri: "http://localhost:3000/authenticate"
+  facebook:
+    client-id: "${FACEBOOK_CLIENT_ID}"
+    client-secret: "${FACEBOOK_CLIENT_SECRET}"
+  google:
+    client-id: "${GOOGLE_CLIENT_ID}"
+    client-secret: "${GOOGLE_CLIENT_SECRET}"
+
+jwt:
+  signer-key: "${JWT_SIGNER_KEY}"
+  valid-duration: 2 # in hours
+  refreshable-duration: 168 # in hours
+
+app:
+  services:
+    profile: http://localhost:8081/profile
