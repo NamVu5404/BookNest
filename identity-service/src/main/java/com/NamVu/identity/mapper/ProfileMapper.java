@@ -1,8 +1,9 @@
 package com.NamVu.identity.mapper;
 
+import org.mapstruct.Mapper;
+
 import com.NamVu.identity.dto.request.identity.UserCreateRequest;
 import com.NamVu.identity.dto.request.profile.ProfileRequest;
-import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {

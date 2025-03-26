@@ -1,14 +1,18 @@
 package com.NamVu.identity.controller;
 
+import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.identity.dto.request.password.ChangePasswordRequest;
+import com.NamVu.identity.dto.request.password.ResetPasswordRequest;
 import com.NamVu.identity.dto.request.password.SetPasswordRequest;
 import com.NamVu.identity.service.PasswordService;
-import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/password")
@@ -24,7 +28,7 @@ public class PasswordController {
         return ApiResponse.<Void>builder().build();
     }
 
-    /*
+    /**
      * set password cho user login bằng bên thứ 3
      */
     @PutMapping("/set")
@@ -33,18 +37,9 @@ public class PasswordController {
         return ApiResponse.<Void>builder().build();
     }
 
-    @PutMapping("/reset/{id}")
-    public ApiResponse<Void> resetPassword(@PathVariable String id) {
-        passwordService.resetPassword(id);
-
-        return ApiResponse.<Void>builder().build();
-    }
-
-    @PostMapping("/forgot")
-    public ApiResponse<Object> forgotPassword(@RequestBody @Valid Object object) {
-        var result = passwordService.forgotPassword(object);
-        return ApiResponse.builder()
-                .result(result)
-                .build();
+    @PostMapping("/reset")
+    public ApiResponse<?> forgotPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        passwordService.forgotPassword(request);
+        return ApiResponse.builder().build();
     }
 }

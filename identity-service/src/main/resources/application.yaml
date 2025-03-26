@@ -21,6 +21,11 @@ spring:
     show-sql: false
   profiles:
     active: prod
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 #logging:
 #  level:
@@ -28,7 +33,7 @@ spring:
 #    org.springframework.security: debug
 
 outbound:
-  redirect-uri: "http://localhost:3000/authenticate"
+  redirect-uri: "http://localhost:3001/authenticate"
   facebook:
     client-id: "${FACEBOOK_CLIENT_ID}"
     client-secret: "${FACEBOOK_CLIENT_SECRET}"
@@ -39,7 +44,7 @@ outbound:
 jwt:
   signer-key: "${JWT_SIGNER_KEY}"
   valid-duration: 2 # in hours
-  refreshable-duration: 168 # in hours
+  refreshable-duration: 72 # in hours
 
 app:
   services:

@@ -1,5 +1,7 @@
 package com.NamVu.notification.service.impl;
 
+import com.NamVu.common.exception.AppException;
+import com.NamVu.common.exception.ErrorCode;
 import com.NamVu.notification.dto.request.EmailRequest;
 import com.NamVu.notification.dto.request.SendEmailRequest;
 import com.NamVu.notification.dto.request.Sender;
@@ -10,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,14 +21,23 @@ import org.springframework.stereotype.Service;
 public class EmailServiceImpl implements EmailService {
     EmailClient emailClient;
 
+    @Value("${notification.email.brevo-apikey}")
     @NonFinal
-    String apiKey = "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";
+    String API_KEY;
+
+    @Value("${notification.email.email}")
+    @NonFinal
+    String SENDER_EMAIL;
+
+    @Value("${notification.email.name}")
+    @NonFinal
+    String SENDER_NAME;
 
     @Override
     public EmailResponse sendEmail(SendEmailRequest request) {
         Sender sender = Sender.builder()
-                .email("vungocnam542004@gmail.com")
-                .name("Vũ Ngọc Nam")
+                .email(SENDER_EMAIL)
+                .name(SENDER_NAME)
                 .build();
 
         EmailRequest emailRequest = EmailRequest.builder()
@@ -35,7 +47,10 @@ public class EmailServiceImpl implements EmailService {
                 .subject(request.getSubject())
                 .build();
 
-        return emailClient.sendEmail(apiKey, emailRequest);
-
+        try {
+            return emailClient.sendEmail(API_KEY, emailRequest);
+        } catch (Exception e) {
+            throw new AppException(ErrorCode.CAN_NOT_SEND_EMAIL);
+        }
     }
 }

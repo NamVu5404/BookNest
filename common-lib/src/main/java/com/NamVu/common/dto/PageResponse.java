@@ -12,7 +12,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PageResponse<T> {
-    int totalPage;
+    int totalPages;
     int pageSize;
     int currentPage;
     long totalElements;

@@ -1,10 +1,11 @@
 package com.NamVu.profile.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
+
 import com.NamVu.profile.dto.request.ProfileRequest;
 import com.NamVu.profile.dto.response.ProfileResponse;
 import com.NamVu.profile.entity.Profile;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface ProfileMapper {

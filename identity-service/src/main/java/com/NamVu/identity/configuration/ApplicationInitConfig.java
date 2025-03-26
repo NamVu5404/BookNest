@@ -1,21 +1,23 @@
 package com.NamVu.identity.configuration;
 
-import com.NamVu.identity.constant.PredefinedRole;
-import com.NamVu.identity.entity.Role;
-import com.NamVu.identity.entity.User;
-import com.NamVu.identity.repository.RoleRepository;
-import com.NamVu.identity.repository.UserRepository;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.NonFinal;
-import lombok.extern.slf4j.Slf4j;
+import java.util.HashSet;
+
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.HashSet;
+import com.NamVu.identity.constant.PredefinedRole;
+import com.NamVu.identity.entity.Role;
+import com.NamVu.identity.entity.User;
+import com.NamVu.identity.repository.RoleRepository;
+import com.NamVu.identity.repository.UserRepository;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @RequiredArgsConstructor
@@ -25,13 +27,14 @@ public class ApplicationInitConfig {
 
     @NonFinal
     static final String ADMIN_EMAIL = "admin@gmail.com";
+
     @NonFinal
     static final String ADMIN_PASSWORD = "admin";
+
     PasswordEncoder passwordEncoder;
 
     @Bean
     ApplicationRunner applicationRunner(UserRepository userRepository, RoleRepository roleRepository) {
-        log.info("Initializing application.....");
         return args -> {
             if (userRepository.findByEmail(ADMIN_EMAIL).isEmpty()) {
                 roleRepository.save(Role.builder()
@@ -56,7 +59,6 @@ public class ApplicationInitConfig {
                 userRepository.save(user);
                 log.warn("admin user has been created with default password: admin, please change it");
             }
-            log.info("Application initialization completed .....");
         };
     }
 }
