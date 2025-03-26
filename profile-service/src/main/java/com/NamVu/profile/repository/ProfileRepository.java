@@ -11,6 +11,8 @@ import java.util.Optional;
 @Repository
 public interface ProfileRepository extends Neo4jRepository<Profile, String> {
     Optional<Profile> findByUserIdAndIsActive(String userId, Integer isActive);
+
     Optional<Profile> findByUserId(String userId);
+
     Page<Profile> findByIsActive(Integer isActive, Pageable pageable);
 }

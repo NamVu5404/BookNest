@@ -37,7 +37,7 @@ public class ProfileController {
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "size", defaultValue = "20") int size
     ) {
-        Pageable pageable = PageRequest.of(page -1, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
 
         return ApiResponse.<PageResponse<ProfileResponse>>builder()
                 .result(profileService.getAll(pageable))

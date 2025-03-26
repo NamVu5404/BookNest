@@ -22,7 +22,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_ENDPOINTS = {
-               "/users", "/auth/**"
+            "/users", "/auth/**"
     };
 
     private final CustomJwtDecoder customJwtDecoder;

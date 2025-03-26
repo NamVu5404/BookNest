@@ -2,7 +2,6 @@ package com.NamVu.identity.mapper;
 
 import com.NamVu.identity.dto.request.identity.UserCreateRequest;
 import com.NamVu.identity.dto.request.identity.UserUpdateRequest;
-import com.NamVu.identity.dto.request.profile.ProfileRequest;
 import com.NamVu.identity.dto.response.identity.UserResponse;
 import com.NamVu.identity.entity.User;
 import org.mapstruct.Mapper;
