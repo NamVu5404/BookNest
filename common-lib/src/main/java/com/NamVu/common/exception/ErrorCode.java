@@ -11,27 +11,28 @@ import org.springframework.http.HttpStatusCode;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum ErrorCode {
-    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized error", HttpStatus.INTERNAL_SERVER_ERROR),
-    INVALID_KEY(1001, "Uncategorized error", HttpStatus.BAD_REQUEST),
-    USER_EXISTED(1002, "User existed", HttpStatus.BAD_REQUEST),
-    USER_NOT_EXISTED(1003, "User not existed", HttpStatus.NOT_FOUND),
-    PASSWORD_NOT_BLANK(1004, "Password is required", HttpStatus.BAD_REQUEST),
-    NAME_NOT_BLANK(1005, "Name is required", HttpStatus.BAD_REQUEST),
-    EMAIL_NOT_BLANK(1006, "Email is required", HttpStatus.BAD_REQUEST),
-    INVALID_PASSWORD(1007, "Password must be at least {min} characters and" +
-            " no more than {max} characters.", HttpStatus.BAD_REQUEST),
-    INVALID_EMAIL(1008, "Invalid email format", HttpStatus.BAD_REQUEST),
-    INVALID_PHONE(1009, "Invalid phone format", HttpStatus.BAD_REQUEST),
+    UNCATEGORIZED_EXCEPTION(9999, "Lỗi không xác định", HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_KEY(1001, "Lỗi không xác định", HttpStatus.BAD_REQUEST),
+    USER_EXISTED(1002, "Người dùng đã tồn tại", HttpStatus.BAD_REQUEST),
+    USER_NOT_EXISTED(1003, "Người dùng không tồn tại", HttpStatus.NOT_FOUND),
+    PASSWORD_NOT_BLANK(1004, "Mật khẩu không được để trống", HttpStatus.BAD_REQUEST),
+    NAME_NOT_BLANK(1005, "Tên không được để trống", HttpStatus.BAD_REQUEST),
+    EMAIL_NOT_BLANK(1006, "Email không được để trống", HttpStatus.BAD_REQUEST),
+    INVALID_PASSWORD(1007, "Mật khẩu phải có ít nhất {min} kí tự và" +
+            " không quá {max} kí tự.", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL(1008, "Email không đúng định dạng", HttpStatus.BAD_REQUEST),
+    INVALID_PHONE(1009, "Số điện thoại không đúng định dạng", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(1010, "Unauthenticated", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(1011, "You do not have permission", HttpStatus.FORBIDDEN),
-    PASSWORD_EXISTED(1021, "Password existed", HttpStatus.BAD_REQUEST),
-    OLD_PASSWORD_INCORRECT(1022, "Old password incorrect", HttpStatus.BAD_REQUEST),
-    OLD_PASSWORD_NOT_BLANK(1023, "Old password is required", HttpStatus.BAD_REQUEST),
-    NEW_PASSWORD_NOT_BLANK(1024, "New password is required", HttpStatus.BAD_REQUEST),
-    PHONE_NOT_BLANK(1007, "Phone is required", HttpStatus.BAD_REQUEST),
-    INVALID_DOB(1011, "Your age must be at least {min} and under {max}", HttpStatus.BAD_REQUEST),
-    PROFILE_NOT_EXISTED(1003, "Profile not existed", HttpStatus.NOT_FOUND),
-    CAN_NOT_SEND_EMAIL(1003, "Can not send email", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED(1011, "Bạn không được ủy quyền", HttpStatus.FORBIDDEN),
+    PASSWORD_EXISTED(1012, "Mật khẩu đã tồn tại", HttpStatus.BAD_REQUEST),
+    OLD_PASSWORD_INCORRECT(1013, "Mật khẩu cũ không chính xác", HttpStatus.BAD_REQUEST),
+    OLD_PASSWORD_NOT_BLANK(1014, "Mật khẩu cũ không được để trống", HttpStatus.BAD_REQUEST),
+    NEW_PASSWORD_NOT_BLANK(1015, "Mật khẩu mới không được để trống", HttpStatus.BAD_REQUEST),
+    INVALID_DOB(1016, "Tuổi phải lớn hơn hoặc bằng {min} và nhỏ hơn hoặc bằng {max} tuổi", HttpStatus.BAD_REQUEST),
+    PROFILE_NOT_EXISTED(1017, "Profile không tồn tại", HttpStatus.NOT_FOUND),
+    CAN_NOT_SEND_EMAIL(1018, "Không thể gửi email", HttpStatus.BAD_REQUEST),
+    POST_NOT_EXISTED(1019, "Bài viết không tồn tại", HttpStatus.NOT_FOUND),
+    STRATEGY_NOT_FOUND(1020, "Strategy not found", HttpStatus.NOT_FOUND),
     ;
 
     int code;

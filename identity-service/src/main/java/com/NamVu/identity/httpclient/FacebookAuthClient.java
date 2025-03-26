@@ -1,13 +1,15 @@
 package com.NamVu.identity.httpclient;
 
-import com.NamVu.identity.dto.request.auth.ExchangeTokenRequest;
-import com.NamVu.identity.dto.response.auth.ExchangeTokenResponse;
-import feign.QueryMap;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
 
-@FeignClient(name = "facebook-auth-client", url = "https://graph.facebook.com/v21.0")
+import com.NamVu.identity.dto.request.auth.ExchangeTokenRequest;
+import com.NamVu.identity.dto.response.auth.ExchangeTokenResponse;
+
+import feign.QueryMap;
+
+@FeignClient(name = "facebook-auth-client", url = "https://graph.facebook.com/v22.0")
 public interface FacebookAuthClient {
     @PostMapping(value = "/oauth/access_token", produces = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     ExchangeTokenResponse exchangeToken(@QueryMap ExchangeTokenRequest request);

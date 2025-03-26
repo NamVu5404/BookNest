@@ -1,11 +1,13 @@
 package com.NamVu.identity.httpclient;
 
-import com.NamVu.identity.dto.request.auth.ExchangeTokenRequest;
-import com.NamVu.identity.dto.response.auth.ExchangeTokenResponse;
-import feign.QueryMap;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PostMapping;
+
+import com.NamVu.identity.dto.request.auth.ExchangeTokenRequest;
+import com.NamVu.identity.dto.response.auth.ExchangeTokenResponse;
+
+import feign.QueryMap;
 
 @FeignClient(name = "google-auth-client", url = "https://oauth2.googleapis.com")
 public interface GoogleAuthClient {

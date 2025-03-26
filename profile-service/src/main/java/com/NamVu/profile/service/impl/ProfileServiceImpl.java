@@ -1,5 +1,11 @@
 package com.NamVu.profile.service.impl;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
+import com.NamVu.common.constant.StatusConstant;
 import com.NamVu.common.dto.PageResponse;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
@@ -9,14 +15,11 @@ import com.NamVu.profile.entity.Profile;
 import com.NamVu.profile.mapper.ProfileMapper;
 import com.NamVu.profile.repository.ProfileRepository;
 import com.NamVu.profile.service.ProfileService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +39,8 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileResponse update(String userId, ProfileRequest request) {
-        Profile profile = profileRepository.findByUserIdAndIsActive(userId, 1)
+        Profile profile = profileRepository
+                .findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
 
         profileMapper.updateProfile(profile, request);
@@ -47,7 +51,8 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileResponse getByUserId(String userId) {
-        Profile profile = profileRepository.findByUserIdAndIsActive(userId, 1)
+        Profile profile = profileRepository
+                .findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
 
         return profileMapper.toProfileResponse(profile);
@@ -55,26 +60,25 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public void deleteByUserId(String userId) {
-        Profile profile = profileRepository.findByUserId(userId)
+        Profile profile = profileRepository
+                .findByUserId(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
 
-        profile.setIsActive(0);
+        profile.setIsActive(StatusConstant.INACTIVE);
         profileRepository.save(profile);
     }
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public PageResponse<ProfileResponse> getAll(Pageable pageable) {
-        Page<Profile> profiles = profileRepository.findByIsActive(1, pageable);
+        Page<Profile> profiles = profileRepository.findByIsActive(StatusConstant.ACTIVE, pageable);
 
         return PageResponse.<ProfileResponse>builder()
                 .currentPage(profiles.getNumber() + 1)
                 .pageSize(profiles.getSize())
-                .totalPage(profiles.getTotalPages())
+                .totalPages(profiles.getTotalPages())
                 .totalElements(profiles.getTotalElements())
-                .data(profiles.stream()
-                        .map(profileMapper::toProfileResponse)
-                        .toList())
+                .data(profiles.stream().map(profileMapper::toProfileResponse).toList())
                 .build();
     }
 }

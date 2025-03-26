@@ -1,10 +1,10 @@
 package com.NamVu.identity.dto.response.identity;
 
+import java.time.Instant;
+import java.util.Set;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -15,7 +15,8 @@ public class UserResponse {
     String id;
     String email;
     Set<RoleResponse> roles;
-    LocalDateTime createdDate;
+    Instant createdDate;
+    Instant modifiedDate;
 
     @Builder.Default
     boolean hasPassword = true;

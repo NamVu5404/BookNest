@@ -1,14 +1,15 @@
 package com.NamVu.profile.entity;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.SuperBuilder;
+import java.time.LocalDate;
+
 import org.springframework.data.neo4j.core.schema.GeneratedValue;
 import org.springframework.data.neo4j.core.schema.Id;
 import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
-import java.time.LocalDate;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
@@ -26,8 +27,6 @@ public class Profile {
     String fullName;
     String phoneNumber;
     LocalDate dob;
-    String gender;
-    String address;
     String avatar;
     String bio;
 

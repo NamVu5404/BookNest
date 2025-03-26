@@ -1,12 +1,17 @@
 package com.NamVu.profile.controller;
 
+import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.*;
+
+import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.profile.dto.request.ProfileRequest;
 import com.NamVu.profile.dto.response.ProfileResponse;
 import com.NamVu.profile.service.ProfileService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/internal")
@@ -16,12 +21,15 @@ public class InternalProfileController {
     ProfileService profileService;
 
     @PostMapping("/users")
-    ProfileResponse create(@RequestBody ProfileRequest request) {
-        return profileService.create(request);
+    public ApiResponse<ProfileResponse> create(@RequestBody @Valid ProfileRequest request) {
+        return ApiResponse.<ProfileResponse>builder()
+                .result(profileService.create(request))
+                .build();
     }
 
     @DeleteMapping("/users/{userId}")
-    void delete(@PathVariable String userId) {
+    public ApiResponse<?> delete(@PathVariable String userId) {
         profileService.deleteByUserId(userId);
+        return ApiResponse.builder().build();
     }
 }

@@ -42,18 +42,21 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
 
     @NonFinal
     private String[] PUBLIC_ENDPOINTS = {
-            "/identity/auth/.*", "/identity/users", "/notifications/emails"
+            "/identity/auth/.*", "/identity/users", "/identity/otps", "/identity/otps/verification",
+            "/identity/password/reset",
+            "/notification/.*",
+            "/post/posts", "/post/posts/users/.*"
     };
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.info("AuthenticationFilter");
+
         if (isPublicEndpoint(exchange.getRequest()))
             return chain.filter(exchange);
 
         // Get token from authorization header
         List<String> authHeader = exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION);
-
         if (CollectionUtils.isEmpty(authHeader)) {
             return unauthenticated(exchange.getResponse());
         }

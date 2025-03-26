@@ -1,16 +1,18 @@
 package com.NamVu.identity.entity;
 
+import java.time.Instant;
+
 import jakarta.persistence.*;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.SuperBuilder;
+
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.LocalDateTime;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
@@ -26,17 +28,17 @@ public class BaseEntity {
     String id;
 
     @CreatedDate
-    LocalDateTime createdDate;
+    Instant createdDate;
 
     @CreatedBy
     String createdBy;
 
     @LastModifiedDate
-    LocalDateTime modifiedDate;
+    Instant modifiedDate;
 
     @LastModifiedBy
     String modifiedBy;
 
     @Builder.Default
-    byte isActive = 1;
+    Integer isActive = 1;
 }

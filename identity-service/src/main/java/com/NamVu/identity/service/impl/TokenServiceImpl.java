@@ -1,5 +1,16 @@
 package com.NamVu.identity.service.impl;
 
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.Set;
+import java.util.StringJoiner;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
 import com.NamVu.identity.entity.Role;
@@ -11,20 +22,11 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.Set;
-import java.util.StringJoiner;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -51,14 +53,11 @@ public class TokenServiceImpl implements TokenService {
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .issuer("NamVu.com")
-                .claim("uid", user.getId())
-                .subject(user.getEmail())
+                .subject(user.getId())
                 .claim("scope", buildScope(user.getRoles()))
                 .issueTime(new Date())
                 .jwtID(UUID.randomUUID().toString())
-                .expirationTime(Date.from(
-                        Instant.now().plus(VALID_DURATION, ChronoUnit.HOURS)
-                ))
+                .expirationTime(Date.from(Instant.now().plus(VALID_DURATION, ChronoUnit.HOURS)))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -80,18 +79,20 @@ public class TokenServiceImpl implements TokenService {
         SignedJWT signedJWT = SignedJWT.parse(token);
 
         String jti = signedJWT.getJWTClaimsSet().getJWTID();
-        Date expirationDate = (isRefresh) ? // isRefresh: true - refresh token, false - access token
-                Date.from(signedJWT.getJWTClaimsSet().getIssueTime()
-                        .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.HOURS))
+        Date expirationDate = (isRefresh)
+                ? // isRefresh: true - refresh token, false - access token
+                Date.from(signedJWT
+                        .getJWTClaimsSet()
+                        .getIssueTime()
+                        .toInstant()
+                        .plus(REFRESHABLE_DURATION, ChronoUnit.HOURS))
                 : signedJWT.getJWTClaimsSet().getExpirationTime();
 
         boolean verified = signedJWT.verify(verifier);
 
-        if (!(verified && expirationDate.after(new Date())))
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        if (!(verified && expirationDate.after(new Date()))) throw new AppException(ErrorCode.UNAUTHENTICATED);
 
-        if (invalidatedTokenRepository.existsById(jti))
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        if (invalidatedTokenRepository.existsById(jti)) throw new AppException(ErrorCode.UNAUTHENTICATED);
 
         return signedJWT;
     }
@@ -102,9 +103,7 @@ public class TokenServiceImpl implements TokenService {
         roles.forEach(role -> {
             scope.add("ROLE_" + role.getName());
 
-            role.getPermissions().forEach(permission ->
-                    scope.add(permission.getName())
-            );
+            role.getPermissions().forEach(permission -> scope.add(permission.getName()));
         });
 
         return scope.toString();

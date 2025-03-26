@@ -1,5 +1,11 @@
 package com.NamVu.identity.service.impl;
 
+import java.util.HashSet;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.NamVu.identity.constant.PredefinedRole;
 import com.NamVu.identity.dto.request.auth.ExchangeTokenRequest;
 import com.NamVu.identity.dto.request.profile.ProfileRequest;
@@ -10,19 +16,16 @@ import com.NamVu.identity.entity.Role;
 import com.NamVu.identity.entity.User;
 import com.NamVu.identity.httpclient.GoogleAuthClient;
 import com.NamVu.identity.httpclient.GoogleUserClient;
-import com.NamVu.identity.repository.UserRepository;
 import com.NamVu.identity.httpclient.ProfileClient;
+import com.NamVu.identity.repository.RoleRepository;
+import com.NamVu.identity.repository.UserRepository;
 import com.NamVu.identity.service.OutboundAuthService;
 import com.NamVu.identity.service.TokenService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Service("google")
 @RequiredArgsConstructor
@@ -34,6 +37,7 @@ public class GoogleAuthServiceImpl implements OutboundAuthService {
     TokenService tokenService;
     UserRepository userRepository;
     ProfileClient profileClient;
+    RoleRepository roleRepository;
 
     @NonFinal
     @Value("${outbound.google.client-id}")
@@ -51,6 +55,7 @@ public class GoogleAuthServiceImpl implements OutboundAuthService {
     String GRANT_TYPE = "authorization_code";
 
     @Override
+    @Transactional
     public AuthenticationResponse outboundAuthentication(String code) {
         // Exchange token
         ExchangeTokenResponse response = exchangeToken(code);
@@ -65,6 +70,7 @@ public class GoogleAuthServiceImpl implements OutboundAuthService {
         String token = tokenService.generateToken(user);
 
         return AuthenticationResponse.builder()
+                .userId(user.getId())
                 .token(token)
                 .build();
     }
@@ -84,29 +90,25 @@ public class GoogleAuthServiceImpl implements OutboundAuthService {
     }
 
     private User onboardUser(UserGgResponse userInfo) {
-        User user = userRepository.findByEmail(userInfo.getEmail()).orElse(null);
+        return userRepository.findByEmail(userInfo.getEmail()).orElseGet(() -> {
+            HashSet<Role> roles = new HashSet<>();
+            roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
 
-        if (user != null) return user;
+            User newUser =
+                    User.builder().email(userInfo.getEmail()).roles(roles).build();
 
-        Set<Role> roles = new HashSet<>();
-        roles.add(Role.builder().name(PredefinedRole.USER_ROLE).build());
+            newUser = userRepository.save(newUser);
 
-        User newUser = User.builder()
-                .email(userInfo.getEmail())
-                .roles(roles)
-                .build();
+            ProfileRequest profileRequest = ProfileRequest.builder()
+                    .userId(newUser.getId())
+                    .fullName(userInfo.getName())
+                    .avatar(userInfo.getPicture())
+                    .build();
 
-        newUser = userRepository.save(newUser);
+            // Tạo profile
+            profileClient.create(profileRequest);
 
-        ProfileRequest profileRequest = ProfileRequest.builder()
-                .userId(newUser.getId())
-                .fullName(userInfo.getName())
-                .avatar(userInfo.getPicture())
-                .build();
-
-        profileClient.create(profileRequest);
-
-        return newUser;
+            return newUser;
+        });
     }
 }
-
