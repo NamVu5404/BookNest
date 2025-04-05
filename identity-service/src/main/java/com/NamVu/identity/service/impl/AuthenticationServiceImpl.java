@@ -119,10 +119,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 InvalidatedToken.builder().id(jti).expiryTime(expiryTime).build());
 
         // tạo token mới dựa vào subject
-        String email = signedJWT.getJWTClaimsSet().getSubject();
+        String userId = signedJWT.getJWTClaimsSet().getSubject();
 
         User user = userRepository
-                .findByEmailAndIsActive(email, StatusConstant.ACTIVE)
+                .findByIdAndIsActive(userId, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.UNAUTHENTICATED));
 
         return RefreshResponse.builder().token(tokenService.generateToken(user)).build();

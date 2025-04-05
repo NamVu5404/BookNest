@@ -5,11 +5,14 @@ import com.NamVu.common.dto.PageResponse;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
 import com.NamVu.post.dto.request.PostRequest;
+import com.NamVu.post.dto.response.PostHistoryResponse;
 import com.NamVu.post.dto.response.PostResponse;
 import com.NamVu.post.dto.response.ProfileResponse;
 import com.NamVu.post.entity.Post;
+import com.NamVu.post.entity.PostHistory;
 import com.NamVu.post.httpclient.ProfileClient;
 import com.NamVu.post.mapper.PostMapper;
+import com.NamVu.post.repository.PostHistoryRepository;
 import com.NamVu.post.repository.PostRepository;
 import com.NamVu.post.service.DateTimeFormatter;
 import com.NamVu.post.service.PostService;
@@ -35,6 +38,7 @@ public class PostServiceImpl implements PostService {
     PostMapper postMapper;
     DateTimeFormatter dateTimeFormatter;
     ProfileClient profileClient;
+    PostHistoryRepository postHistoryRepository;
 
     @Override
     public PageResponse<PostResponse> getAll(Pageable pageable) {
@@ -63,6 +67,22 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public PageResponse<PostHistoryResponse> getHistoryByPostId(String postId, Pageable pageable) {
+        Page<PostHistory> postHistories = postHistoryRepository.findByPostId(postId, pageable);
+
+        return PageResponse.<PostHistoryResponse>builder()
+                .totalPages(postHistories.getTotalPages())
+                .pageSize(pageable.getPageSize())
+                .currentPage(pageable.getPageNumber() + 1)
+                .totalElements(postHistories.getTotalElements())
+                .data(postHistories.stream()
+                        .map(postHistory -> postMapper.toPostHistoryResponse(postHistory,
+                                dateTimeFormatter.format(postHistory.getModifiedDate())))
+                        .toList())
+                .build();
+    }
+
+    @Override
     public PostResponse create(PostRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userId = authentication.getName();
@@ -75,6 +95,9 @@ public class PostServiceImpl implements PostService {
                 .build();
 
         post = postRepository.save(post);
+
+        // Lưu bản gốc
+        savePostHistory(post);
 
         return toResponse(post);
     }
@@ -93,8 +116,10 @@ public class PostServiceImpl implements PostService {
 
         post.setContent(request.getContent());
         post.setModifiedDate(Instant.now());
-
         post = postRepository.save(post);
+
+        // Lưu lịch sử chỉnh sửa Post
+        savePostHistory(post);
 
         return toResponse(post);
     }
@@ -113,6 +138,15 @@ public class PostServiceImpl implements PostService {
 
         post.setIsActive(StatusConstant.INACTIVE);
         postRepository.save(post);
+    }
+
+    private void savePostHistory(Post post) {
+        PostHistory postHistory = PostHistory.builder()
+                .postId(post.getId())
+                .content(post.getContent())
+                .modifiedDate(post.getModifiedDate())
+                .build();
+        postHistoryRepository.save(postHistory);
     }
 
     private PostResponse toResponse(Post post) {

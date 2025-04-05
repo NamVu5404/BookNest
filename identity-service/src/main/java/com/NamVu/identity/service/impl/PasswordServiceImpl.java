@@ -29,10 +29,10 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public void changePassword(ChangePasswordRequest request) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository
-                .findByEmailAndIsActive(email, StatusConstant.ACTIVE)
+                .findByIdAndIsActive(userId, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
@@ -45,10 +45,10 @@ public class PasswordServiceImpl implements PasswordService {
 
     @Override
     public void setPassword(String password) {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         User user = userRepository
-                .findByEmailAndIsActive(username, StatusConstant.ACTIVE)
+                .findByIdAndIsActive(userId, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         if (StringUtils.hasText(user.getPassword())) throw new AppException(ErrorCode.PASSWORD_EXISTED);

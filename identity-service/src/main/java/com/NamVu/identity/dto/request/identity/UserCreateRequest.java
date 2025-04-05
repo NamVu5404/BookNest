@@ -23,4 +23,8 @@ public class UserCreateRequest {
 
     @NotBlank(message = "NAME_NOT_BLANK")
     String fullName;
+
+    @NotBlank(message = "PHONE_NOT_BLANK")
+    @Pattern(regexp = "^0\\d{9}$", message = "INVALID_PHONE")
+    String phoneNumber;
 }

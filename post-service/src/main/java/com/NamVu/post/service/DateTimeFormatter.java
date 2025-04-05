@@ -53,13 +53,18 @@ public class DateTimeFormatter {
 
     private String formatInDays(Instant createdDate) {
         long elapseDays = ChronoUnit.DAYS.between(createdDate, Instant.now());
-        return String.format("%s ngày trước", elapseDays);
+
+        LocalDateTime localDateTime = createdDate.atZone(ZoneId.systemDefault()).toLocalDateTime();
+        java.time.format.DateTimeFormatter dateTimeFormatter
+                = java.time.format.DateTimeFormatter.ofPattern("HH:mm");
+
+        return String.format("%s ngày trước lúc %s", elapseDays, localDateTime.format(dateTimeFormatter));
     }
 
     private String formatInDate(Instant createdDate) {
         LocalDateTime localDateTime = createdDate.atZone(ZoneId.systemDefault()).toLocalDateTime();
         java.time.format.DateTimeFormatter dateTimeFormatter
-                = java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                = java.time.format.DateTimeFormatter.ofPattern("dd-MM-yyyy 'lúc' HH:mm");
 
         return localDateTime.format(dateTimeFormatter);
     }

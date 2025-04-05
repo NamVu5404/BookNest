@@ -1,5 +1,5 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
-import {checkAuthAndRefreshIfNeeded, initializeAuth} from "../services/authenticationService";
+import {checkAuthAndRefreshIfNeeded, initializeAuth,} from "../services/authenticationService";
 import {getUid} from "../services/localStorageService";
 
 // Tạo context cho authentication

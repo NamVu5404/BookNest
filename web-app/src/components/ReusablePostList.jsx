@@ -1,8 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // components/ReusablePostList.js
-import {List, Spin} from "antd";
+import {Avatar, Button, List, Spin} from "antd";
 import {useCallback, useEffect, useRef, useState} from "react";
+import CreatePost from "./CreatePost";
 import Post from "./Post";
+import {useUserDetails} from "../contexts/UserContext";
+import {UserOutlined} from '@ant-design/icons';
 
 const ReusablePostList = ({fetchFunction}) => {
     const [posts, setPosts] = useState([]);
@@ -12,6 +15,8 @@ const ReusablePostList = ({fetchFunction}) => {
     const [hasMore, setHasMore] = useState(true);
     const lastPostElementRef = useRef();
     const hasLoadedInitial = useRef(false);
+    const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+    const {userDetails} = useUserDetails();
 
     const loadPosts = useCallback(
         (pageNum) => {
@@ -98,6 +103,47 @@ const ReusablePostList = ({fetchFunction}) => {
 
     return (
         <>
+            <div
+                className="bg"
+                style={{
+                    padding: '12px 16px',
+                    display: 'flex',
+                }}
+            >
+                {userDetails?.avatar ? (
+                    <Avatar
+                        src={userDetails.avatar}
+                        size="large"
+                        style={{cursor: "pointer", marginRight: 12}}
+                    />
+                ) : (
+                    <Avatar
+                        size="large"
+                        icon={<UserOutlined/>}
+                        style={{cursor: "pointer", marginRight: 12}}
+                    />
+                )}
+                <Button
+                    onClick={() => setIsCreateModalVisible(true)}
+                    style={{
+                        height: '40px',
+                        border: '1px solid #e4e6eb',
+                        borderRadius: '20px',
+                        padding: '0 12px',
+                        backgroundColor: '#F2F4F7',
+                        justifyContent: 'flex-start',
+                        flex: 1,
+                    }}
+                >
+                    Tạo bài viết mới
+                </Button>
+            </div>
+
+            <CreatePost
+                visible={isCreateModalVisible}
+                onClose={() => setIsCreateModalVisible(false)}
+            />
+
             <List
                 dataSource={posts}
                 itemLayout="vertical"

@@ -14,6 +14,7 @@ import {Spin} from "antd";
 import {isAuthenticated} from "../services/authenticationService";
 import Profile from "../pages/home/Profile";
 import ScrollRestoration from "../components/ScrollRestoration";
+import Settings from "../pages/home/Settings";
 
 // Component bảo vệ route yêu cầu xác thực
 const ProtectedRoute = ({children}) => {
@@ -39,6 +40,14 @@ const AppRoutes = () => {
                         element={
                             <ProtectedRoute>
                                 <Profile/>
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/settings"
+                        element={
+                            <ProtectedRoute>
+                                <Settings/>
                             </ProtectedRoute>
                         }
                     />
