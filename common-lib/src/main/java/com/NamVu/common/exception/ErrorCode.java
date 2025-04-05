@@ -33,6 +33,7 @@ public enum ErrorCode {
     CAN_NOT_SEND_EMAIL(1018, "Không thể gửi email", HttpStatus.BAD_REQUEST),
     POST_NOT_EXISTED(1019, "Bài viết không tồn tại", HttpStatus.NOT_FOUND),
     STRATEGY_NOT_FOUND(1020, "Strategy not found", HttpStatus.NOT_FOUND),
+    PHONE_NOT_BLANK(1021, "Số điện thoại không được để trống", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

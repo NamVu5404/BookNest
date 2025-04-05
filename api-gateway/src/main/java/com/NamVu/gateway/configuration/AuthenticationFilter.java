@@ -45,7 +45,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/identity/auth/.*", "/identity/users", "/identity/otps", "/identity/otps/verification",
             "/identity/password/reset",
             "/notification/.*",
-            "/post/posts", "/post/posts/users/.*"
+            "/post/posts", "/post/posts/users/.*", "/post/posts/.*/history",
     };
 
     @Override

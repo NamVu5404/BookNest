@@ -1,4 +1,4 @@
-import {Button, Card, Form, Input, Typography} from "antd";
+import {Button, Card, Form, Input, message, Typography} from "antd";
 import {useEffect} from "react";
 import {useNavigate} from "react-router-dom";
 import {isAuthenticated} from "../../services/authenticationService";
@@ -15,8 +15,13 @@ export default function ConfirmEmail() {
     }, [navigate]);
 
     const handleSubmit = async (values) => {
-        await sendOtp(values.email);
-        navigate("/verify-reset-password", {state: {email: values.email}});
+        try {
+            await sendOtp(values.email);
+            navigate("/verify-reset-password", {state: {email: values.email}});
+        } catch (error) {
+            console.error("Error sending OTP:", error);
+            message.error(error.response?.data?.message || "Gửi mã xác thực thất bại!");
+        }
     };
 
     return (

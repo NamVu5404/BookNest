@@ -3,6 +3,7 @@ package com.NamVu.post.controller;
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.common.dto.PageResponse;
 import com.NamVu.post.dto.request.PostRequest;
+import com.NamVu.post.dto.response.PostHistoryResponse;
 import com.NamVu.post.dto.response.PostResponse;
 import com.NamVu.post.service.PostService;
 import lombok.AccessLevel;
@@ -42,6 +43,19 @@ public class PostController {
 
         return ApiResponse.<PageResponse<PostResponse>>builder()
                 .result(postService.getByUserId(userId, pageable))
+                .build();
+    }
+
+    @GetMapping("/{postId}/history")
+    public ApiResponse<PageResponse<PostHistoryResponse>> getHistoryByPostId(
+            @PathVariable String postId,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size) {
+        Sort sort = Sort.by(Sort.Direction.DESC, "modifiedDate");
+        Pageable pageable = PageRequest.of(page - 1, size, sort);
+
+        return ApiResponse.<PageResponse<PostHistoryResponse>>builder()
+                .result(postService.getHistoryByPostId(postId, pageable))
                 .build();
     }
 

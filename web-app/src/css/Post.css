@@ -1,0 +1,59 @@
+.post-content {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial;
+    line-height: 1.4 !important;
+    flex: 1;
+    transition: max-height 0.3s ease-out;
+}
+
+.post-content ol {
+    display: block !important;
+    list-style-type: decimal !important;
+    margin-block-start: 0.5em !important;
+    margin-block-end: 0.5em !important;
+    margin-inline-start: 0px !important;
+    margin-inline-end: 0px !important;
+    padding-inline-start: 30px !important; /* Giảm padding để list gọn hơn */
+}
+
+.post-content ul {
+    display: block !important;
+    list-style-type: disc !important;
+    margin-block-start: 0.5em !important;
+    margin-block-end: 0.5em !important;
+    margin-inline-start: 0px !important;
+    margin-inline-end: 0px !important;
+    padding-inline-start: 30px !important; /* Giảm padding để list gọn hơn */
+}
+
+.post-content li {
+    display: list-item !important;
+    text-align: -webkit-match-parent !important;
+    margin: 0.3em 0 !important; /* Thêm margin nhỏ cho mỗi item */
+}
+
+.post-content p {
+    margin-block-start: 0 !important;
+    margin-block-end: 0.5em !important;
+    margin-inline-start: 0 !important;
+    margin-inline-end: 0 !important;
+    line-height: 1.4 !important;
+}
+
+.post-content-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.post-content-measure {
+    position: absolute;
+    visibility: hidden;
+    height: auto !important;
+    width: 100%;
+}
+
+.post-content {
+    transition: max-height 0.3s ease-out;
+}

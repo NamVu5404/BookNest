@@ -1,13 +1,12 @@
 import {UserOutlined} from "@ant-design/icons";
-import {Avatar, Breadcrumb, Button, Card, Col, DatePicker, Form, Input, message, Row, Upload,} from "antd";
+import {Avatar, Button, Card, Col, DatePicker, Form, Input, message, Row, Upload} from "antd";
 import dayjs from "dayjs";
 import React, {useCallback, useEffect, useState} from "react";
-import {Link} from "react-router-dom";
+import ReusablePostList from "../../components/ReusablePostList";
 import {useUserDetails} from "../../contexts/UserContext";
-import {updateProfile} from "../../services/profileService";
 import {getUid} from "../../services/localStorageService";
 import {getMyPosts} from "../../services/postService";
-import ReusablePostList from "../../components/ReusablePostList";
+import {updateProfile} from "../../services/profileService";
 
 export default function Profile() {
     const {userDetails} = useUserDetails();
@@ -42,14 +41,33 @@ export default function Profile() {
                 avatar: imageUrl,
             };
 
-            setTimeout(async () => {
-                await updateProfile(getUid(), {
-                    userId: getUid(),
-                    ...formattedValues,
-                });
-                message.success("Cập nhật thông tin thành công!");
+            // Kiểm tra thay đổi
+            const hasChanged =
+                formattedValues.fullName !== userDetails.fullName ||
+                formattedValues.phoneNumber !== userDetails.phoneNumber ||
+                formattedValues.bio !== userDetails.bio ||
+                formattedValues.dob !== userDetails.dob ||
+                formattedValues.avatar !== userDetails.avatar;
+
+            if (!hasChanged) {
                 setLoading(false);
-            }, 1000);
+                return;
+            }
+
+            setTimeout(async () => {
+                try {
+                    await updateProfile(getUid(), {
+                        userId: getUid(),
+                        ...formattedValues,
+                    });
+                    message.success("Cập nhật thông tin thành công!");
+                    setLoading(false);
+                } catch (error) {
+                    console.error("Failed to update profile:", error);
+                    message.error(error.response?.data?.message || "Cập nhật thông tin thất bại!");
+                    setLoading(false);
+                }
+            }, 500);
         } catch (error) {
             console.error("Failed to update profile:", error);
             message.error("Không thể cập nhật thông tin. Vui lòng thử lại sau.");
@@ -111,14 +129,6 @@ export default function Profile() {
 
     return (
         <>
-            <Breadcrumb
-                style={{marginBottom: 16}}
-                items={[
-                    {title: <Link to={"/"}>Trang chủ</Link>},
-                    {title: "Trang cá nhân"},
-                ]}
-            />
-
             <Row gutter={[16]}>
                 {/* thông tin cá nhân */}
                 <Col xl={10}>
@@ -173,6 +183,7 @@ export default function Profile() {
                                                 name="phoneNumber"
                                                 rules={[
                                                     {
+                                                        required: true,
                                                         pattern: /^0\d{9}$/,
                                                         message: "Số điện thoại không hợp lệ",
                                                     },
@@ -221,7 +232,6 @@ export default function Profile() {
 
                 {/* bài viết */}
                 <Col xl={14}>
-                    <Card title="Bài viết" className="bg"></Card>
                     <ReusablePostList fetchFunction={myPostsFetcher}/>
                 </Col>
             </Row>
