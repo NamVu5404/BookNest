@@ -152,6 +152,8 @@ public class PostServiceImpl implements PostService {
     private PostResponse toResponse(Post post) {
         PostResponse response = postMapper.toPostResponse(post);
         response.setElapsedTime(dateTimeFormatter.format(post.getCreatedDate()));
+        response.setUpdated(!post.getCreatedDate().equals(post.getModifiedDate()));
+
         return addProfileToPostResponse(post.getUserId(), response);
     }
 

@@ -75,7 +75,6 @@ const CreatePost = ({visible, onClose}) => {
             title={
                 <div style={{
                     borderBottom: '1px solid #f0f0f0',
-                    padding: '16px 24px',
                     fontSize: '18px',
                     fontWeight: 600,
                 }}>
@@ -92,7 +91,6 @@ const CreatePost = ({visible, onClose}) => {
             maskClosable={false}
             style={{top: 20}}
             bodyStyle={{
-                padding: '24px',
                 maxHeight: 'calc(100vh - 200px)',
                 overflow: 'auto',
                 backgroundColor: '#fff',

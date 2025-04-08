@@ -37,7 +37,6 @@ public class FileController {
         FileData fileData = fileService.downloadFile(fileName);
 
         return ResponseEntity.ok()
-//                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + "test" + "\"")
                 .header(HttpHeaders.CACHE_CONTROL, "public, max-age=31536000, immutable")
                 .header(HttpHeaders.CONTENT_TYPE, fileData.getContentType())
                 .body(fileData.getResource());

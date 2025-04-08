@@ -19,4 +19,5 @@ public class PostResponse {
     Instant modifiedDate;
     String fullName;
     String avatar;
+    boolean updated;
 }
