@@ -17,11 +17,11 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_GET_ENDPOINTS = {
-        "/users/{userId}",
+            "/internal/users/batch",
     };
 
     private static final String[] PUBLIC_POST_ENDPOINTS = {
-        "/internal/users",
+            "/internal/users",
     };
 
     private final CustomJwtDecoder customJwtDecoder;

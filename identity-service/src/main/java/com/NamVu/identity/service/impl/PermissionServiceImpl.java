@@ -1,20 +1,18 @@
 package com.NamVu.identity.service.impl;
 
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
 import com.NamVu.identity.dto.request.identity.PermissionRequest;
 import com.NamVu.identity.dto.response.identity.PermissionResponse;
 import com.NamVu.identity.entity.Permission;
 import com.NamVu.identity.mapper.PermissionMapper;
 import com.NamVu.identity.repository.PermissionRepository;
 import com.NamVu.identity.service.PermissionService;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor

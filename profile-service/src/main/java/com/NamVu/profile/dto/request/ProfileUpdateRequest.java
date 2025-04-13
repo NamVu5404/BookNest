@@ -1,21 +1,19 @@
 package com.NamVu.profile.dto.request;
 
-import java.time.LocalDate;
-
+import com.NamVu.common.validator.DobConstraint;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-
-import com.NamVu.common.validator.DobConstraint;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.time.LocalDate;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProfileRequest {
+public class ProfileUpdateRequest {
     String userId;
 
     @NotBlank(message = "NAME_NOT_BLANK")
@@ -27,6 +25,5 @@ public class ProfileRequest {
     @DobConstraint(min = 3, max = 80, message = "INVALID_DOB")
     LocalDate dob;
 
-    String avatar;
     String bio;
 }

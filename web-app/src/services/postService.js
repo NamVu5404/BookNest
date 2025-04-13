@@ -14,6 +14,12 @@ export const getMyPosts = async (page = 1, size = 20) => {
     });
 };
 
+export const getUserPosts = async (userId, page = 1, size = 20) => {
+    return await httpClient.get(`${API.GET_MY_POST}/${userId}`, {
+        params: {page, size},
+    });
+};
+
 export const getPostHistory = async (postId, page = 1, size = 10) => {
     return await httpClient.get(`${API.GET_POST_HISTORY}/${postId}/history`, {
         params: {page, size},

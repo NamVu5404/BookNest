@@ -1,11 +1,10 @@
 package com.NamVu.identity.mapper;
 
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-
 import com.NamVu.identity.dto.request.identity.RoleRequest;
 import com.NamVu.identity.dto.response.identity.RoleResponse;
 import com.NamVu.identity.entity.Role;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {

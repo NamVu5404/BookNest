@@ -1,240 +1,150 @@
-import {UserOutlined} from "@ant-design/icons";
-import {Avatar, Button, Card, Col, DatePicker, Form, Input, message, Row, Upload} from "antd";
+import {Avatar, Card, Col, Image, Row, Typography} from "antd";
 import dayjs from "dayjs";
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
+import {useNavigate, useParams} from "react-router-dom";
 import ReusablePostList from "../../components/ReusablePostList";
+import {UserOutlined} from "@ant-design/icons";
+import {getProfileByUid} from "../../services/profileService";
+import {getUserPosts} from "../../services/postService";
 import {useUserDetails} from "../../contexts/UserContext";
-import {getUid} from "../../services/localStorageService";
-import {getMyPosts} from "../../services/postService";
-import {updateProfile} from "../../services/profileService";
+
+const {Text} = Typography;
 
 export default function Profile() {
+    const {userId} = useParams();
+    const [userProfile, setUserProfile] = useState(null);
+    const [loading, setLoading] = useState(true);
     const {userDetails} = useUserDetails();
-    const [form] = Form.useForm();
-    const [loading, setLoading] = useState(false);
-    const [imageUrl, setImageUrl] = useState(userDetails?.avatar || null);
+    const navigate = useNavigate();
 
-    const myPostsFetcher = useCallback(() => getMyPosts(), []);
-
-    // Populate form with user details when component mounts
     useEffect(() => {
-        if (userDetails) {
-            form.setFieldsValue({
-                fullName: userDetails.fullName,
-                phoneNumber: userDetails.phoneNumber,
-                bio: userDetails.bio,
-                // Convert date string to dayjs object for DatePicker
-                dob: userDetails.dob ? dayjs(userDetails.dob) : null,
-            });
-            setImageUrl(userDetails.avatar);
+        if (userId === userDetails?.userId) {
+            navigate("/profile", {replace: true});
         }
-    }, [userDetails, form]);
 
-    // Handle form submission
-    const onFinish = (values) => {
-        setLoading(true);
-        try {
-            // Convert dayjs object to string for API
-            const formattedValues = {
-                ...values,
-                dob: values.dob ? values.dob.format("YYYY-MM-DD") : null,
-                avatar: imageUrl,
-            };
-
-            // Kiểm tra thay đổi
-            const hasChanged =
-                formattedValues.fullName !== userDetails.fullName ||
-                formattedValues.phoneNumber !== userDetails.phoneNumber ||
-                formattedValues.bio !== userDetails.bio ||
-                formattedValues.dob !== userDetails.dob ||
-                formattedValues.avatar !== userDetails.avatar;
-
-            if (!hasChanged) {
+        const fetchProfile = async () => {
+            try {
+                const response = await getProfileByUid(userId);
+                setUserProfile(response.data.result);
+            } catch (error) {
+                console.error("Failed to fetch profile:", error);
+            } finally {
                 setLoading(false);
-                return;
             }
+        };
 
-            setTimeout(async () => {
-                try {
-                    await updateProfile(getUid(), {
-                        userId: getUid(),
-                        ...formattedValues,
-                    });
-                    message.success("Cập nhật thông tin thành công!");
-                    setLoading(false);
-                } catch (error) {
-                    console.error("Failed to update profile:", error);
-                    message.error(error.response?.data?.message || "Cập nhật thông tin thất bại!");
-                    setLoading(false);
-                }
-            }, 500);
-        } catch (error) {
-            console.error("Failed to update profile:", error);
-            message.error("Không thể cập nhật thông tin. Vui lòng thử lại sau.");
-            setLoading(false);
+        if (userId) {
+            fetchProfile();
         }
-    };
+    }, [userId, navigate, userDetails]);
 
-    // Upload avatar handling
-    // const handleAvatarChange = (info) => {
-    //   if (info.file.status === "uploading") {
-    //     return;
-    //   }
-
-    //   if (info.file.status === "done") {
-    //     // When using actual API, this would be replaced with the response URL
-    //     // For now, simulating a successful upload
-    //     const imageUrl = URL.createObjectURL(info.file.originFileObj);
-    //     setImageUrl(imageUrl);
-    //     message.success("Tải ảnh lên thành công!");
-    //   } else if (info.file.status === "error") {
-    //     message.error("Tải ảnh thất bại.");
-    //   }
-    // };
-
-    // Validate date of birth (3-80 years old)
-    const validateDob = (_, value) => {
-        if (!value) {
-            return Promise.resolve();
-        }
-
-        const today = new Date();
-        const birthDate = value.toDate();
-
-        // Calculate age
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-
-        if (
-            monthDiff < 0 ||
-            (monthDiff === 0 && today.getDate() < birthDate.getDate())
-        ) {
-            age--;
-        }
-
-        if (age < 3) {
-            return Promise.reject("Tuổi phải lớn hơn hoặc bằng 3!");
-        }
-
-        if (age > 80) {
-            return Promise.reject("Tuổi phải nhỏ hơn hoặc bằng 80!");
-        }
-
-        return Promise.resolve();
-    };
-
-    const handleCancel = () => {
-        form.resetFields();
-    };
+    const userPostsFetcher = () => getUserPosts(userId);
 
     return (
-        <>
-            <Row gutter={[16]}>
-                {/* thông tin cá nhân */}
-                <Col xl={10}>
-                    <Card title="Thông tin cá nhân" className="bg profile-sidebar">
-                        <Form
-                            form={form}
-                            layout="vertical"
-                            onFinish={onFinish}
-                            initialValues={{
-                                fullName: userDetails?.fullName || "",
-                                phoneNumber: userDetails?.phoneNumber || "",
-                                bio: userDetails?.bio || "",
-                                dob: userDetails?.dob ? dayjs(userDetails.dob) : null,
-                            }}
-                        >
-                            <Row gutter={[16]}>
-                                <Col xl={6}>
-                                    <Upload
-                                        name="avatar"
-                                        listType="picture-card"
-                                        className="avatar-uploader"
-                                        showUploadList={false}
-                                    >
-                                        {imageUrl ? (
-                                            <Avatar size={100} src={imageUrl} alt="avatar"/>
-                                        ) : (
-                                            <Avatar size={100} icon={<UserOutlined/>}/>
-                                        )}
-                                    </Upload>
-                                    <div style={{marginTop: 8}}>Ảnh đại diện</div>
-                                </Col>
-                                <Col xl={18}>
-                                    <Row gutter={[16]}>
-                                        <Col xl={24}>
-                                            <Form.Item
-                                                label="Họ và tên"
-                                                name="fullName"
-                                                rules={[
-                                                    {
-                                                        required: true,
-                                                        message: "Vui lòng nhập họ và tên!",
-                                                    },
-                                                ]}
-                                            >
-                                                <Input placeholder="Nguyễn Văn A" maxLength={50}/>
-                                            </Form.Item>
-                                        </Col>
+        <Row gutter={[16]}>
+            {/* thông tin cá nhân */}
+            <Col xl={10}>
+                <Card
+                    title={
+                        <div>
+                            Thông tin cá nhân
+                        </div>
+                    }
+                    className="bg profile-sidebar"
+                    styles={{
+                        body: {padding: '24px'}
+                    }}
+                    loading={loading}
+                >
+                    <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        marginBottom: '24px'
+                    }}>
+                        <div style={{marginBottom: '12px', position: 'relative'}}>
+                            <div style={{
+                                width: '100px',
+                                height: '100px',
+                                borderRadius: '50%',
+                                overflow: 'hidden',
+                                position: 'relative'
+                            }}>
+                                {userProfile?.avatar ? (
+                                    // <Avatar
+                                    //   src={userProfile.avatar}
+                                    //   size={120}
+                                    //   style={{
+                                    //     width: '100%',
+                                    //     height: '100%',
+                                    //     objectFit: 'cover'
+                                    //   }}
+                                    // />
+                                    <Image
+                                        src={userProfile.avatar}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            objectFit: 'cover'
+                                        }}
+                                    />
+                                ) : (
+                                    <Avatar
+                                        size={120}
+                                        icon={<UserOutlined style={{fontSize: '48px'}}/>}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            backgroundColor: '#f5f5f5',
+                                            border: '2px dashed #d9d9d9'
+                                        }}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    </div>
 
-                                        <Col xl={12}>
-                                            <Form.Item
-                                                label="Số điện thoại"
-                                                name="phoneNumber"
-                                                rules={[
-                                                    {
-                                                        required: true,
-                                                        pattern: /^0\d{9}$/,
-                                                        message: "Số điện thoại không hợp lệ",
-                                                    },
-                                                ]}
-                                            >
-                                                <Input placeholder="0123456789"/>
-                                            </Form.Item>
-                                        </Col>
-                                        <Col xl={12}>
-                                            <Form.Item
-                                                label="Ngày sinh"
-                                                name="dob"
-                                                rules={[{validator: validateDob}]}
-                                            >
-                                                <DatePicker
-                                                    style={{width: "100%"}}
-                                                    placeholder="09/09/1999"
-                                                    format="DD/MM/YYYY"
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                    </Row>
-                                </Col>
-                            </Row>
+                    <div style={{borderTop: '1px solid #f0f0f0', paddingTop: '24px'}}>
+                        <div style={{marginBottom: '16px'}}>
+                            <Text type="secondary">Họ và tên</Text>
+                            <div style={{fontSize: '16px', marginTop: '4px'}}>
+                                {userProfile?.fullName || 'Chưa cập nhật'}
+                            </div>
+                        </div>
 
-                            <Form.Item label="Giới thiệu bản thân" name="bio">
-                                <Input.TextArea
-                                    rows={4}
-                                    maxLength={255}
-                                    showCount
-                                    placeholder="Viết vài dòng giới thiệu về bản thân ..."
-                                />
-                            </Form.Item>
+                        <Row gutter={16}>
+                            <Col span={12}>
+                                <div style={{marginBottom: '16px'}}>
+                                    <Text type="secondary">Số điện thoại</Text>
+                                    <div style={{fontSize: '16px', marginTop: '4px'}}>
+                                        {userProfile?.phoneNumber || 'Chưa cập nhật'}
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col span={12}>
+                                <div style={{marginBottom: '16px'}}>
+                                    <Text type="secondary">Ngày sinh</Text>
+                                    <div style={{fontSize: '16px', marginTop: '4px'}}>
+                                        {userProfile?.dob ? dayjs(userProfile.dob).format('DD/MM/YYYY') : 'Chưa cập nhật'}
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
 
-                            <Form.Item>
-                                <Button style={{marginRight: 16}} onClick={handleCancel}>
-                                    Hủy
-                                </Button>
-                                <Button type="primary" htmlType="submit" loading={loading}>
-                                    Cập nhật thông tin
-                                </Button>
-                            </Form.Item>
-                        </Form>
-                    </Card>
-                </Col>
+                        <div>
+                            <Text type="secondary">Giới thiệu bản thân</Text>
+                            <div style={{fontSize: '16px', marginTop: '4px', whiteSpace: 'pre-wrap'}}>
+                                {userProfile?.bio || 'Chưa cập nhật'}
+                            </div>
+                        </div>
+                    </div>
+                </Card>
+            </Col>
 
-                {/* bài viết */}
-                <Col xl={14}>
-                    <ReusablePostList fetchFunction={myPostsFetcher}/>
-                </Col>
-            </Row>
-        </>
+            {/* bài viết */}
+            <Col xl={14}>
+                <ReusablePostList fetchFunction={userPostsFetcher} hidden={true}/>
+            </Col>
+        </Row>
     );
 }

@@ -12,7 +12,7 @@ const EmailVerificationForm = ({
                                }) => {
     const navigate = useNavigate();
     const [form] = Form.useForm();
-    const [isLoading, setIsLoading] = useState(false);
+    const [isVerifyingLoading, setIsVerifyingLoading] = useState(false);
     const [resendLoading, setResendLoading] = useState(false);
     const [countdown, setCountdown] = useState(0);
 
@@ -37,7 +37,7 @@ const EmailVerificationForm = ({
     // Hàm xác thực email
     const handleVerify = async (values) => {
         try {
-            setIsLoading(true);
+            setIsVerifyingLoading(true);
 
             // Gọi API xác thực email
             const response = await verificationOtpCode(email, values.otpCode);
@@ -69,7 +69,7 @@ const EmailVerificationForm = ({
                 error.response?.data?.message || "Mã xác thực không hợp lệ!"
             );
         } finally {
-            setIsLoading(false);
+            setIsVerifyingLoading(false);
         }
     };
 
@@ -161,7 +161,7 @@ const EmailVerificationForm = ({
                             htmlType="submit"
                             size="large"
                             block
-                            loading={isLoading}
+                            loading={isVerifyingLoading}
                         >
                             Xác thực
                         </Button>

@@ -16,5 +16,5 @@ server:
 
 app:
   file:
-    storage-dir: F:\uploads
+    storage-dir: F:\BookNest_files
     urlPrefix: http://localhost:8888/api/v1/file/media/download/

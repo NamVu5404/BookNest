@@ -1,10 +1,10 @@
 package com.NamVu.identity.service;
 
-import java.text.ParseException;
-
 import com.NamVu.identity.entity.User;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
+
+import java.text.ParseException;
 
 public interface TokenService {
     String generateToken(User user);

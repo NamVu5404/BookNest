@@ -35,7 +35,6 @@ function validateInput(data) {
     return data; // Giữ nguyên nếu không phải chuỗi hoặc object
 }
 
-
 /**
  * Loại bỏ khoảng trắng ở đầu và cuối chuỗi
  * @param {string} str - Chuỗi cần xử lý

@@ -1,14 +1,8 @@
 package com.NamVu.identity.service.impl;
 
-import java.util.HashSet;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.NamVu.identity.constant.PredefinedRole;
 import com.NamVu.identity.dto.request.auth.ExchangeTokenRequest;
-import com.NamVu.identity.dto.request.profile.ProfileRequest;
+import com.NamVu.identity.dto.request.profile.ProfileCreateRequest;
 import com.NamVu.identity.dto.response.auth.AuthenticationResponse;
 import com.NamVu.identity.dto.response.auth.ExchangeTokenResponse;
 import com.NamVu.identity.dto.response.identity.UserGgResponse;
@@ -21,11 +15,15 @@ import com.NamVu.identity.repository.RoleRepository;
 import com.NamVu.identity.repository.UserRepository;
 import com.NamVu.identity.service.OutboundAuthService;
 import com.NamVu.identity.service.TokenService;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
 
 @Service("google")
 @RequiredArgsConstructor
@@ -99,14 +97,14 @@ public class GoogleAuthServiceImpl implements OutboundAuthService {
 
             newUser = userRepository.save(newUser);
 
-            ProfileRequest profileRequest = ProfileRequest.builder()
+            ProfileCreateRequest profileCreateRequest = ProfileCreateRequest.builder()
                     .userId(newUser.getId())
                     .fullName(userInfo.getName())
                     .avatar(userInfo.getPicture())
                     .build();
 
             // Tạo profile
-            profileClient.create(profileRequest);
+            profileClient.create(profileCreateRequest);
 
             return newUser;
         });

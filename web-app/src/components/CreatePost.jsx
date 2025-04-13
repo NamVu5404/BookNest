@@ -1,13 +1,14 @@
 import {message, Modal} from "antd";
 import DOMPurify from 'dompurify';
-import React, {useState} from "react";
+import React, {useRef, useState} from "react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import {createPost} from "../services/postService";
-// import { createPost } from "../services/postService";
 
 const CreatePost = ({visible, onClose}) => {
     const [content, setContent] = useState('');
+    const [loading, setLoading] = useState(false);
+    const quillRef = useRef(null);
 
     const modules = {
         toolbar: [
@@ -21,6 +22,11 @@ const CreatePost = ({visible, onClose}) => {
         clipboard: {
             matchVisual: false,
         },
+        keyboard: {
+            bindings: {
+                tab: false
+            }
+        }
     };
 
     const formats = [
@@ -46,6 +52,7 @@ const CreatePost = ({visible, onClose}) => {
     };
 
     const handleSave = async () => {
+        setLoading(true);
         try {
             const cleanContent = content.replace(/<p><br><\/p>/g, '').trim();
             if (!cleanContent) {
@@ -62,6 +69,8 @@ const CreatePost = ({visible, onClose}) => {
         } catch (error) {
             message.error(error.response?.data?.message || "Đăng bài viết thất bại!");
             console.error("Lỗi khi đăng bài viết:", error);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -81,7 +90,7 @@ const CreatePost = ({visible, onClose}) => {
                     Tạo bài viết mới
                 </div>
             }
-            visible={visible}
+            open={visible}
             onOk={handleSave}
             onCancel={handleCancel}
             okText="Đăng"
@@ -90,15 +99,18 @@ const CreatePost = ({visible, onClose}) => {
             centered
             maskClosable={false}
             style={{top: 20}}
-            bodyStyle={{
-                maxHeight: 'calc(100vh - 200px)',
-                overflow: 'auto',
-                backgroundColor: '#fff',
-                borderRadius: '8px',
+            styles={{
+                body: {
+                    maxHeight: 'calc(100vh - 200px)',
+                    overflow: 'auto',
+                    backgroundColor: '#fff',
+                    borderRadius: '8px',
+                }
             }}
             okButtonProps={{
                 size: 'large',
-                style: {minWidth: 100}
+                style: {minWidth: 100},
+                loading: loading
             }}
             cancelButtonProps={{
                 size: 'large',
@@ -106,20 +118,24 @@ const CreatePost = ({visible, onClose}) => {
             }}
         >
             <div style={{height: '450px'}}>
-                <ReactQuill
-                    theme="snow"
-                    value={content}
-                    onChange={setContent}
-                    modules={modules}
-                    formats={formats}
-                    style={{
-                        height: '400px',
-                        marginBottom: '20px',
-                        border: '1px solid #d9d9d9',
-                        borderRadius: '6px',
-                    }}
-                    preserveWhitespace={true}
-                />
+                <div className="quill-editor">
+                    <ReactQuill
+                        ref={quillRef}
+                        theme="snow"
+                        value={content}
+                        onChange={setContent}
+                        modules={modules}
+                        formats={formats}
+                        style={{
+                            height: '400px',
+                            marginBottom: '20px',
+                            border: '1px solid #d9d9d9',
+                            borderRadius: '6px',
+                        }}
+                        preserveWhitespace={true}
+                        bounds=".quill-editor"
+                    />
+                </div>
             </div>
         </Modal>
     );

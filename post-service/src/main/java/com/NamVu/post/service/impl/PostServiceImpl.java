@@ -28,6 +28,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -150,34 +153,37 @@ public class PostServiceImpl implements PostService {
     }
 
     private PostResponse toResponse(Post post) {
+        Map<String, ProfileResponse> profiles = profileClient.getByUserIds(Set.of(post.getUserId())).getResult();
+        return mapToResponse(post, profiles);
+    }
+
+    private List<PostResponse> toResponse(Page<Post> posts) {
+        Set<String> userIds = posts.stream()
+                .map(Post::getUserId)
+                .collect(Collectors.toSet());
+
+        Map<String, ProfileResponse> profiles = profileClient.getByUserIds(userIds).getResult();
+
+        return posts.stream()
+                .map(post -> mapToResponse(post, profiles))
+                .toList();
+    }
+
+    private PostResponse mapToResponse(Post post, Map<String, ProfileResponse> profiles) {
         PostResponse response = postMapper.toPostResponse(post);
         response.setElapsedTime(dateTimeFormatter.format(post.getCreatedDate()));
         response.setUpdated(!post.getCreatedDate().equals(post.getModifiedDate()));
 
-        return addProfileToPostResponse(post.getUserId(), response);
-    }
-
-    private List<PostResponse> toResponse(Page<Post> posts) {
-        return posts.stream()
-                .map(this::toResponse)
-                .toList();
-    }
-
-    private PostResponse addProfileToPostResponse(String userId, PostResponse postResponse) {
-        ProfileResponse profile = null;
-
-        try {
-            // Lấy thông tin profile của user
-            profile = profileClient.getProfileByUserId(userId).getResult();
-        } catch (Exception e) {
-            log.error("Error when calling profile service: {}", e.getMessage());
-        }
+        // Gán profile từ map đã có
+        ProfileResponse profile = profiles.get(post.getUserId());
 
         if (profile != null) {
-            postResponse.setFullName(profile.getFullName());
-            postResponse.setAvatar(profile.getAvatar());
+            response.setFullName(profile.getFullName());
+            response.setAvatar(profile.getAvatar());
+        } else {
+            throw new AppException(ErrorCode.PROFILE_NOT_EXISTED);
         }
 
-        return postResponse;
+        return response;
     }
 }

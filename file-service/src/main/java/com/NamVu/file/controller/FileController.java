@@ -21,10 +21,11 @@ import java.io.IOException;
 public class FileController {
     FileService fileService;
 
-    @PostMapping("/media/upload")
-    public ApiResponse<FileResponse> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
+    @PostMapping("/media/upload/{subDir}")
+    public ApiResponse<FileResponse> uploadFile(@RequestParam("file") MultipartFile file,
+                                                @PathVariable String subDir) throws IOException {
         return ApiResponse.<FileResponse>builder()
-                .result(fileService.uploadFile(file))
+                .result(fileService.uploadFile(file, subDir))
                 .build();
     }
 

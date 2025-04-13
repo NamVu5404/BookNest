@@ -2,7 +2,6 @@ package com.NamVu.identity.dto.request.password;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

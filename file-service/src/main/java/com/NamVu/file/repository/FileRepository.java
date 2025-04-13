@@ -33,9 +33,16 @@ public class FileRepository {
      * @return FileInfo chứa thông tin về tệp đã lưu
      * @throws IOException Nếu có lỗi xảy ra trong quá trình lưu trữ tệp
      */
-    public FileInfo store(MultipartFile file) throws IOException {
-        // Thiết lập đường dẫn lưu trữ tệp
-        Path folder = Paths.get(storageDir);
+    public FileInfo store(MultipartFile file, String subDir) throws IOException {
+        // Thiết lập đường dẫn lưu trữ tệp với subdirectory
+        // .normalize() sẽ loại bỏ các phần tử không hợp lệ trong đường dẫn
+        // .toAbsolutePath() sẽ chuyển đổi đường dẫn tương đối thành đường dẫn tuyệt đối
+        Path folder = Paths.get(storageDir, subDir).normalize().toAbsolutePath();
+
+        // Tạo thư mục mới nếu chưa tồn tại
+        if (!Files.exists(folder)) {
+            Files.createDirectories(folder);
+        }
 
         // Lấy extension của tệp tải lên
         String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename());
@@ -46,9 +53,7 @@ public class FileRepository {
                 : UUID.randomUUID() + "." + fileExtension;
 
         // .resolve() tạo đường dẫn đầy đủ tệp
-        // .normalize() sẽ loại bỏ các phần tử không hợp lệ trong đường dẫn
-        // .toAbsolutePath() sẽ chuyển đổi đường dẫn tương đối thành đường dẫn tuyệt đối
-        Path filePath = folder.resolve(fileName).normalize().toAbsolutePath();
+        Path filePath = folder.resolve(fileName);
 
         // Sao chép nội dung của tệp vào đường dẫn đã chỉ định, nếu tồn tại thì thay thế
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);

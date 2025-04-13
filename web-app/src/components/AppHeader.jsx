@@ -7,7 +7,7 @@ import {
     SettingOutlined,
     UserOutlined,
 } from "@ant-design/icons";
-import {Avatar, Badge, Dropdown, Input, Layout, Menu, Space, Tooltip,} from "antd";
+import {Avatar, Badge, Dropdown, Input, Layout, Space, Tooltip} from "antd";
 import React, {useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {useUserDetails} from "../contexts/UserContext";
@@ -32,7 +32,7 @@ export default function AppHeader() {
 
     const handleMenuClick = ({key}) => {
         if (key === "profile") {
-            navigate("/profile");
+            navigate(`/profile`);
         }
 
         if (key === "settings") {
@@ -46,20 +46,26 @@ export default function AppHeader() {
         }
     };
 
-    const menu = (
-        <Menu onClick={handleMenuClick}>
-            <Menu.Item key="profile" icon={<UserOutlined/>}>
-                Trang cá nhân
-            </Menu.Item>
-            <Menu.Item key="settings" icon={<SettingOutlined/>}>
-                Cài đặt
-            </Menu.Item>
-            <Menu.Divider/>
-            <Menu.Item key="logout" icon={<LogoutOutlined/>}>
-                Đăng xuất
-            </Menu.Item>
-        </Menu>
-    );
+    const menuItems = [
+        {
+            key: "profile",
+            icon: <UserOutlined/>,
+            label: "Trang cá nhân"
+        },
+        {
+            key: "settings",
+            icon: <SettingOutlined/>,
+            label: "Cài đặt"
+        },
+        {
+            type: 'divider'
+        },
+        {
+            key: "logout",
+            icon: <LogoutOutlined/>,
+            label: "Đăng xuất"
+        }
+    ];
 
     return (
         <>
@@ -78,7 +84,7 @@ export default function AppHeader() {
                 }}
             >
                 <img
-                    src="/logo/booknest-text-logo.svg"
+                    src={`/logo/booknest-text-logo.svg?v=1.0.0`}
                     alt="logo"
                     height={50}
                     onClick={() => navigate("/")}
@@ -100,53 +106,60 @@ export default function AppHeader() {
                     <Badge count={17}>
                         <BellOutlined style={{fontSize: 20}}/>
                     </Badge>
-                    <Tooltip title="Tài khoản">
-                        {userDetails ? (
-                            <Dropdown
-                                overlay={menu}
-                                trigger={["click"]}
-                                open={menuVisible}
-                                onOpenChange={setMenuVisible}
-                            >
-                                <div style={{position: "relative", display: "inline-block"}}>
-                                    {userDetails.avatar ? (
-                                        <Avatar
-                                            size="large"
-                                            src={userDetails.avatar}
-                                            style={{cursor: "pointer"}}
-                                        />
-                                    ) : (
-                                        <Avatar
-                                            size="large"
-                                            icon={<UserOutlined/>}
-                                            style={{cursor: "pointer"}}
-                                        />
-                                    )}
-                                    <DownOutlined
-                                        style={{
-                                            position: "absolute",
-                                            bottom: 5,
-                                            right: 0,
-                                            fontSize: 12,
-                                            fontWeight: "900",
-                                            color: "#000",
-                                            background: "#fff",
-                                            borderRadius: "50%",
-                                            padding: 2,
-                                            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+                    <div>
+                        <Tooltip title="Tài khoản" mouseEnterDelay={0.1} mouseLeaveDelay={0.1}>
+                            <div style={{display: "inline-block"}}>
+                                {userDetails ? (
+                                    <Dropdown
+                                        menu={{
+                                            items: menuItems,
+                                            onClick: handleMenuClick
                                         }}
+                                        trigger={["click"]}
+                                        open={menuVisible}
+                                        onOpenChange={setMenuVisible}
+                                    >
+                                        <div style={{position: "relative", display: "inline-block"}}>
+                                            {userDetails.avatar ? (
+                                                <Avatar
+                                                    size="large"
+                                                    src={userDetails.avatar}
+                                                    style={{cursor: "pointer"}}
+                                                />
+                                            ) : (
+                                                <Avatar
+                                                    size="large"
+                                                    icon={<UserOutlined/>}
+                                                    style={{cursor: "pointer"}}
+                                                />
+                                            )}
+                                            <DownOutlined
+                                                style={{
+                                                    position: "absolute",
+                                                    bottom: 5,
+                                                    right: 0,
+                                                    fontSize: 12,
+                                                    fontWeight: "900",
+                                                    color: "#000",
+                                                    background: "#fff",
+                                                    borderRadius: "50%",
+                                                    padding: 2,
+                                                    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+                                                }}
+                                            />
+                                        </div>
+                                    </Dropdown>
+                                ) : (
+                                    <Avatar
+                                        size="large"
+                                        icon={<UserOutlined/>}
+                                        style={{cursor: "pointer"}}
+                                        onClick={showLoginModal}
                                     />
-                                </div>
-                            </Dropdown>
-                        ) : (
-                            <Avatar
-                                size="large"
-                                icon={<UserOutlined/>}
-                                style={{cursor: "pointer"}}
-                                onClick={showLoginModal}
-                            />
-                        )}
-                    </Tooltip>
+                                )}
+                            </div>
+                        </Tooltip>
+                    </div>
                 </Space>
             </Header>
 

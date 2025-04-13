@@ -5,6 +5,8 @@ import {changePassword, setPassword} from "../services/passwordService";
 
 export default function Password() {
     const [myInfo, setMyInfo] = useState(null);
+    const [changeLoading, setChangeLoading] = useState(false);
+    const [setPasswordLoading, setSetPasswordLoading] = useState(false);
     console.log(myInfo);
 
     useEffect(() => {
@@ -39,19 +41,21 @@ export default function Password() {
             return;
         }
 
-        const body = {
-            oldPassword: values.oldPassword,
-            newPassword: values.newPassword,
-        };
-
+        setChangeLoading(true);
         try {
+            const body = {
+                oldPassword: values.oldPassword,
+                newPassword: values.newPassword,
+            };
+
             await changePassword(body);
             message.success("Đổi mật khẩu thành công!");
+            formChange.resetFields();
         } catch (error) {
             message.error(error.response?.data?.message || "Lỗi khi đổi mật khẩu!");
+        } finally {
+            setChangeLoading(false);
         }
-
-        formChange.resetFields();
     };
 
     const handleSetPassword = async (values) => {
@@ -60,15 +64,18 @@ export default function Password() {
             return;
         }
 
-        const body = {
-            password: values.password,
-        };
-
+        setSetPasswordLoading(true);
         try {
+            const body = {
+                password: values.password,
+            };
+
             await setPassword(body);
             message.success("Đặt mật khẩu thành công!");
         } catch (error) {
             message.error(error.response?.data?.message || "Lỗi khi đặt mật khẩu!");
+        } finally {
+            setSetPasswordLoading(false);
         }
     };
 
@@ -132,7 +139,7 @@ export default function Password() {
                             >
                                 Hủy
                             </Button>
-                            <Button type="primary" htmlType="submit" size="large">
+                            <Button type="primary" htmlType="submit" size="large" loading={changeLoading}>
                                 Xác nhận
                             </Button>
                         </Form.Item>
@@ -172,7 +179,7 @@ export default function Password() {
                             >
                                 Hủy
                             </Button>
-                            <Button type="primary" htmlType="submit" size="large">
+                            <Button type="primary" htmlType="submit" size="large" loading={setPasswordLoading}>
                                 Lưu
                             </Button>
                         </Form.Item>

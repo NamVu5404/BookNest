@@ -1,4 +1,4 @@
-package com.NamVu.common.event;
+package com.NamVu.event.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;

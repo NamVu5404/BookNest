@@ -1,25 +1,23 @@
 package com.NamVu.identity.configuration;
 
-import java.util.HashSet;
-
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.crypto.password.PasswordEncoder;
-
 import com.NamVu.identity.constant.PredefinedRole;
-import com.NamVu.identity.dto.request.profile.ProfileRequest;
+import com.NamVu.identity.dto.request.profile.ProfileCreateRequest;
 import com.NamVu.identity.entity.Role;
 import com.NamVu.identity.entity.User;
 import com.NamVu.identity.httpclient.ProfileClient;
 import com.NamVu.identity.repository.RoleRepository;
 import com.NamVu.identity.repository.UserRepository;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.HashSet;
 
 @Configuration
 @RequiredArgsConstructor
@@ -64,7 +62,7 @@ public class ApplicationInitConfig {
 
                 user = userRepository.save(user);
 
-                profileClient.create(ProfileRequest.builder()
+                profileClient.create(ProfileCreateRequest.builder()
                         .userId(user.getId())
                         .fullName(ADMIN_FULL_NAME)
                         .build());

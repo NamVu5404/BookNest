@@ -1,26 +1,15 @@
 package com.NamVu.identity.service.impl;
 
-import java.util.HashSet;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
 import com.NamVu.common.constant.KafkaConstant;
 import com.NamVu.common.constant.StatusConstant;
 import com.NamVu.common.dto.PageResponse;
-import com.NamVu.common.event.NotificationEvent;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
+import com.NamVu.event.dto.NotificationEvent;
 import com.NamVu.identity.constant.PredefinedRole;
 import com.NamVu.identity.dto.request.identity.UserCreateRequest;
 import com.NamVu.identity.dto.request.identity.UserUpdateRequest;
-import com.NamVu.identity.dto.request.profile.ProfileRequest;
+import com.NamVu.identity.dto.request.profile.ProfileCreateRequest;
 import com.NamVu.identity.dto.response.identity.UserResponse;
 import com.NamVu.identity.entity.Role;
 import com.NamVu.identity.entity.User;
@@ -30,11 +19,20 @@ import com.NamVu.identity.mapper.UserMapper;
 import com.NamVu.identity.repository.RoleRepository;
 import com.NamVu.identity.repository.UserRepository;
 import com.NamVu.identity.service.UserService;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.HashSet;
 
 @Service
 @RequiredArgsConstructor
@@ -76,10 +74,10 @@ public class UserServiceImpl implements UserService {
         user.setRoles(roles);
         user = userRepository.save(user);
 
-        ProfileRequest profileRequest = profileMapper.toProfileRequest(request);
-        profileRequest.setUserId(user.getId());
+        ProfileCreateRequest profileCreateRequest = profileMapper.toProfileRequest(request);
+        profileCreateRequest.setUserId(user.getId());
 
-        profileClient.create(profileRequest);
+        profileClient.create(profileCreateRequest);
 
         // Publish message to Kafka
         sendWelcomeEmail(request);

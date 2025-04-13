@@ -1,14 +1,13 @@
 package com.NamVu.identity.entity;
 
-import java.util.Set;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
+
+import java.util.Set;
 
 @Getter
 @Setter

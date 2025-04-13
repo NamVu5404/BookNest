@@ -1,7 +1,7 @@
 package com.NamVu.notification.controller;
 
 import com.NamVu.common.constant.KafkaConstant;
-import com.NamVu.common.event.NotificationEvent;
+import com.NamVu.event.dto.NotificationEvent;
 import com.NamVu.notification.dto.request.Recipient;
 import com.NamVu.notification.dto.request.SendEmailRequest;
 import com.NamVu.notification.service.EmailService;

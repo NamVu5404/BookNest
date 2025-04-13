@@ -1,10 +1,5 @@
 package com.NamVu.identity.service.impl;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
 import com.NamVu.common.constant.StatusConstant;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
@@ -13,11 +8,14 @@ import com.NamVu.identity.dto.request.password.ResetPasswordRequest;
 import com.NamVu.identity.entity.User;
 import com.NamVu.identity.repository.UserRepository;
 import com.NamVu.identity.service.PasswordService;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor

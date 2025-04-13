@@ -1,15 +1,16 @@
 import {FacebookOutlined, GoogleOutlined} from "@ant-design/icons";
 import {Button, Card, Divider, Form, Input, message, Typography} from "antd";
+import {useEffect, useState} from "react";
 import {Link, useNavigate} from "react-router-dom";
 import {OAuthConfig} from "../../configurations/configuration";
 import {useUserDetails} from "../../contexts/UserContext";
 import {isAuthenticated, logIn} from "../../services/authenticationService";
-import {useEffect} from "react";
 
 export default function Login() {
     const navigate = useNavigate();
     const [form] = Form.useForm();
     const {updateUser} = useUserDetails();
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (isAuthenticated()) {
@@ -18,6 +19,7 @@ export default function Login() {
     }, [navigate]);
 
     const handleSubmit = async (values) => {
+        setLoading(true);
         try {
             const response = await logIn(values.email, values.password);
             updateUser();
@@ -27,6 +29,8 @@ export default function Login() {
             message.error(
                 "Email hoặc mật khẩu không chính xác!" || error.response?.data?.message
             );
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -110,7 +114,7 @@ export default function Login() {
 
                     {/* Submit Button */}
                     <Form.Item>
-                        <Button type="primary" htmlType="submit" size="large" block>
+                        <Button type="primary" htmlType="submit" size="large" block loading={loading}>
                             Đăng nhập
                         </Button>
                     </Form.Item>

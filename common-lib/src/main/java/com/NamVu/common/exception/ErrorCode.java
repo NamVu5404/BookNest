@@ -35,6 +35,7 @@ public enum ErrorCode {
     STRATEGY_NOT_FOUND(1020, "Strategy not found", HttpStatus.NOT_FOUND),
     PHONE_NOT_BLANK(1021, "Số điện thoại không được để trống", HttpStatus.BAD_REQUEST),
     FILE_NOT_FOUND(1020, "Tệp không tồn tại", HttpStatus.NOT_FOUND),
+    FILE_UPLOAD_FAILED(1021, "Tải tệp lên không thành công", HttpStatus.INTERNAL_SERVER_ERROR),
     ;
 
     int code;

@@ -1,18 +1,16 @@
 package com.NamVu.identity.entity;
 
-import java.time.Instant;
-
 import jakarta.persistence.*;
-
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-import lombok.experimental.SuperBuilder;
+import java.time.Instant;
 
 @Getter
 @Setter

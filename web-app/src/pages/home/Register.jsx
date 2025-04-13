@@ -32,6 +32,8 @@ export default function Register() {
             });
         } catch (error) {
             message.error(error.response?.data?.message || "Đăng ký thất bại!");
+        } finally {
+            setLoading(false);
         }
     };
 

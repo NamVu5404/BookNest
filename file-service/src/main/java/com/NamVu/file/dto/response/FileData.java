@@ -4,8 +4,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.core.io.Resource;
 
-import java.nio.file.Path;
-
 @Data
 @Builder
 @AllArgsConstructor

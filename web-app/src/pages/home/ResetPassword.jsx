@@ -7,7 +7,7 @@ export default function ResetPassword() {
     const navigate = useNavigate();
     const location = useLocation();
     const [form] = Form.useForm();
-    const [isLoading, setIsLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     // Lấy email và verificationCode từ state
     const email = location.state?.email;
@@ -42,9 +42,8 @@ export default function ResetPassword() {
 
     // Hàm đặt lại mật khẩu
     const handleResetPassword = async (values) => {
+        setLoading(true);
         try {
-            setIsLoading(true);
-
             // Gọi API đặt lại mật khẩu
             try {
                 await resetPassword(email, values.password);
@@ -63,7 +62,7 @@ export default function ResetPassword() {
                 error.response?.data?.message || "Đặt lại mật khẩu thất bại!"
             );
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
     };
 
@@ -127,7 +126,7 @@ export default function ResetPassword() {
                             htmlType="submit"
                             size="large"
                             block
-                            loading={isLoading}
+                            loading={loading}
                         >
                             Đặt lại mật khẩu
                         </Button>

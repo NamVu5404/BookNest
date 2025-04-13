@@ -1,5 +1,5 @@
 import {Button, Card, Form, Input, message, Typography} from "antd";
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useNavigate} from "react-router-dom";
 import {isAuthenticated} from "../../services/authenticationService";
 import {sendOtp} from "../../services/otpService";
@@ -7,6 +7,7 @@ import {sendOtp} from "../../services/otpService";
 export default function ConfirmEmail() {
     const navigate = useNavigate();
     const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (isAuthenticated()) {
@@ -15,12 +16,15 @@ export default function ConfirmEmail() {
     }, [navigate]);
 
     const handleSubmit = async (values) => {
+        setLoading(true);
         try {
             await sendOtp(values.email);
             navigate("/verify-reset-password", {state: {email: values.email}});
         } catch (error) {
             console.error("Error sending OTP:", error);
             message.error(error.response?.data?.message || "Gửi mã xác thực thất bại!");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -67,7 +71,7 @@ export default function ConfirmEmail() {
 
                     {/* Submit Button */}
                     <Form.Item style={{marginBottom: 0}}>
-                        <Button type="primary" htmlType="submit" size="large" block>
+                        <Button type="primary" htmlType="submit" size="large" block loading={loading}>
                             Gửi mã xác thực
                         </Button>
                     </Form.Item>

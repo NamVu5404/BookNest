@@ -1,20 +1,18 @@
 package com.NamVu.profile.controller;
 
-import jakarta.validation.Valid;
-
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.web.bind.annotation.*;
-
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.common.dto.PageResponse;
-import com.NamVu.profile.dto.request.ProfileRequest;
+import com.NamVu.profile.dto.request.ProfileUpdateRequest;
 import com.NamVu.profile.dto.response.ProfileResponse;
 import com.NamVu.profile.service.ProfileService;
-
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,11 +28,23 @@ public class ProfileController {
     }
 
     @PutMapping("/users/{userId}")
-    public ApiResponse<ProfileResponse> update(
-            @PathVariable String userId, @RequestBody @Valid ProfileRequest request) {
+    public ApiResponse<ProfileResponse> updateProfile(
+            @PathVariable String userId, @RequestBody @Valid ProfileUpdateRequest request) {
         return ApiResponse.<ProfileResponse>builder()
                 .result(profileService.update(userId, request))
                 .build();
+    }
+
+    @PatchMapping("/users/avatar")
+    public ApiResponse<?> updateAvatar(@RequestParam("file") MultipartFile file) {
+        profileService.updateAvatar(file);
+        return ApiResponse.builder().build();
+    }
+
+    @DeleteMapping("/users/avatar")
+    public ApiResponse<?> deleteAvatar() {
+        profileService.deleteAvatar();
+        return ApiResponse.builder().build();
     }
 
     @GetMapping("/users")

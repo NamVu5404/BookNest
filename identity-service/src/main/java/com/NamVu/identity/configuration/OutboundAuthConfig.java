@@ -1,13 +1,12 @@
 package com.NamVu.identity.configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.NamVu.identity.service.OutboundAuthService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.NamVu.identity.service.OutboundAuthService;
+import java.util.HashMap;
+import java.util.Map;
 
 @Configuration
 public class OutboundAuthConfig {

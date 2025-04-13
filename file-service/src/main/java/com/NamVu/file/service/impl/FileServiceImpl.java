@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Path;
 
 @Service
 @RequiredArgsConstructor
@@ -31,9 +30,9 @@ public class FileServiceImpl implements FileService {
     FileManagementRepository fileMgmtRepository;
 
     @Override
-    public FileResponse uploadFile(MultipartFile file) throws IOException {
+    public FileResponse uploadFile(MultipartFile file, String subDir) throws IOException {
         // Lưu tệp tải lên vào thư mục đã chỉ định
-        FileInfo fileInfo = fileRepository.store(file);
+        FileInfo fileInfo = fileRepository.store(file, subDir);
 
         // Lưu thông tin file vào DBMS
         FileManagement fileManagement = fileMapper.toFileManagement(fileInfo);
