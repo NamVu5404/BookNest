@@ -28,7 +28,8 @@ public enum ErrorCode {
     OLD_PASSWORD_INCORRECT(1013, "Mật khẩu cũ không chính xác", HttpStatus.BAD_REQUEST),
     OLD_PASSWORD_NOT_BLANK(1014, "Mật khẩu cũ không được để trống", HttpStatus.BAD_REQUEST),
     NEW_PASSWORD_NOT_BLANK(1015, "Mật khẩu mới không được để trống", HttpStatus.BAD_REQUEST),
-    INVALID_DOB(1016, "Tuổi phải lớn hơn hoặc bằng {min} và nhỏ hơn hoặc bằng {max} tuổi", HttpStatus.BAD_REQUEST),
+    INVALID_DOB(1016, "Tuổi phải lớn hơn hoặc bằng {min} và nhỏ hơn hoặc bằng {max} tuổi",
+            HttpStatus.BAD_REQUEST),
     PROFILE_NOT_EXISTED(1017, "Profile không tồn tại", HttpStatus.NOT_FOUND),
     CAN_NOT_SEND_EMAIL(1018, "Không thể gửi email", HttpStatus.BAD_REQUEST),
     POST_NOT_EXISTED(1019, "Bài viết không tồn tại", HttpStatus.NOT_FOUND),
@@ -36,6 +37,11 @@ public enum ErrorCode {
     PHONE_NOT_BLANK(1021, "Số điện thoại không được để trống", HttpStatus.BAD_REQUEST),
     FILE_NOT_FOUND(1020, "Tệp không tồn tại", HttpStatus.NOT_FOUND),
     FILE_UPLOAD_FAILED(1021, "Tải tệp lên không thành công", HttpStatus.INTERNAL_SERVER_ERROR),
+    FRIEND_SELF_REQUEST(1022, "Không thể gửi cho chính mình", HttpStatus.BAD_REQUEST),
+    CANNOT_SEND_FRIEND_REQUEST(1023, "Đã gửi lời mời kết bạn trước đó", HttpStatus.BAD_REQUEST),
+    FRIEND_REQUEST_NOT_FOUND(1024, "Lời mời kết bạn không tồn tại", HttpStatus.NOT_FOUND),
+    CANNOT_UNFRIEND(1028, "Không thể hủy kết bạn", HttpStatus.BAD_REQUEST),
+    ALREADY_FRIEND(1029, "Các bạn đã là bạn bè", HttpStatus.BAD_REQUEST),
     ;
 
     int code;

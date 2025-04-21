@@ -1,7 +1,7 @@
 import {EyeOutlined, LockOutlined, NotificationOutlined, UserOutlined,} from "@ant-design/icons";
 import {Card, Col, List, Row} from "antd";
 import {useState} from "react";
-import Password from "../../components/Password";
+import PasswordSetting from "../../components/PasswordSetting";
 
 export default function Settings() {
     const [selectedSetting, setSelectedSetting] = useState("account");
@@ -22,7 +22,7 @@ export default function Settings() {
             case "account":
                 return <p>Cài đặt tài khoản.</p>;
             case "security":
-                return <Password/>;
+                return <PasswordSetting/>;
             case "notifications":
                 return <p>Cài đặt thông báo.</p>;
             case "privacy":

@@ -1,19 +1,17 @@
 package com.NamVu.identity.controller;
 
-import java.util.Map;
-
+import com.NamVu.common.dto.ApiResponse;
+import com.NamVu.identity.dto.response.auth.AuthenticationResponse;
+import com.NamVu.identity.service.OutboundAuthService;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.NamVu.common.dto.ApiResponse;
-import com.NamVu.identity.dto.response.auth.AuthenticationResponse;
-import com.NamVu.identity.service.OutboundAuthService;
-
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth/outbound")

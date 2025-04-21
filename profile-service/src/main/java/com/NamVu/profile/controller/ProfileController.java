@@ -3,7 +3,8 @@ package com.NamVu.profile.controller;
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.common.dto.PageResponse;
 import com.NamVu.profile.dto.request.ProfileUpdateRequest;
-import com.NamVu.profile.dto.response.ProfileResponse;
+import com.NamVu.profile.dto.response.PrivateProfileResponse;
+import com.NamVu.profile.dto.response.PublicProfileResponse;
 import com.NamVu.profile.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -15,45 +16,53 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class ProfileController {
     ProfileService profileService;
 
-    @GetMapping("/users/{userId}")
-    public ApiResponse<ProfileResponse> getByUserId(@PathVariable String userId) {
-        return ApiResponse.<ProfileResponse>builder()
-                .result(profileService.getByUserId(userId))
+    @GetMapping("/{userId}")
+    public ApiResponse<PublicProfileResponse> getPublicProfileByUserId(@PathVariable String userId) {
+        return ApiResponse.<PublicProfileResponse>builder()
+                .result(profileService.getPublicProfileByUserId(userId))
                 .build();
     }
 
-    @PutMapping("/users/{userId}")
-    public ApiResponse<ProfileResponse> updateProfile(
+    @GetMapping("/my-profile")
+    public ApiResponse<PrivateProfileResponse> getMyProfile() {
+        return ApiResponse.<PrivateProfileResponse>builder()
+                .result(profileService.getMyProfile())
+                .build();
+    }
+
+    @PutMapping("/{userId}")
+    public ApiResponse<PrivateProfileResponse> updateProfile(
             @PathVariable String userId, @RequestBody @Valid ProfileUpdateRequest request) {
-        return ApiResponse.<ProfileResponse>builder()
+        return ApiResponse.<PrivateProfileResponse>builder()
                 .result(profileService.update(userId, request))
                 .build();
     }
 
-    @PatchMapping("/users/avatar")
+    @PatchMapping("/avatar")
     public ApiResponse<?> updateAvatar(@RequestParam("file") MultipartFile file) {
         profileService.updateAvatar(file);
         return ApiResponse.builder().build();
     }
 
-    @DeleteMapping("/users/avatar")
+    @DeleteMapping("/avatar")
     public ApiResponse<?> deleteAvatar() {
         profileService.deleteAvatar();
         return ApiResponse.builder().build();
     }
 
-    @GetMapping("/users")
-    public ApiResponse<PageResponse<ProfileResponse>> getAll(
+    @GetMapping
+    public ApiResponse<PageResponse<PrivateProfileResponse>> getAll(
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "size", defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
-        return ApiResponse.<PageResponse<ProfileResponse>>builder()
+        return ApiResponse.<PageResponse<PrivateProfileResponse>>builder()
                 .result(profileService.getAll(pageable))
                 .build();
     }

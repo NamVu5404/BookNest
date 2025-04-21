@@ -47,6 +47,7 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
             "/notification/.*",
             "/post/posts", "/post/posts/users/.*", "/post/posts/.*/history",
             "/file/media/download/.*",
+            "/profile/users/.*"
     };
 
     @Override

@@ -1,18 +1,15 @@
 package com.NamVu.identity.controller;
 
-import jakarta.validation.Valid;
-
-import org.springframework.web.bind.annotation.*;
-
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.identity.dto.request.password.ChangePasswordRequest;
 import com.NamVu.identity.dto.request.password.ResetPasswordRequest;
 import com.NamVu.identity.dto.request.password.SetPasswordRequest;
 import com.NamVu.identity.service.PasswordService;
-
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/password")

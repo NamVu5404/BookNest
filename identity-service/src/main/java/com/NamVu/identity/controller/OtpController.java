@@ -1,16 +1,14 @@
 package com.NamVu.identity.controller;
 
-import org.springframework.web.bind.annotation.*;
-
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.identity.dto.request.otp.VerifyEmailRequest;
 import com.NamVu.identity.dto.response.otp.VerifyEmailResponse;
 import com.NamVu.identity.service.OtpService;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/otps")

@@ -7,7 +7,7 @@ import com.NamVu.common.exception.ErrorCode;
 import com.NamVu.post.dto.request.PostRequest;
 import com.NamVu.post.dto.response.PostHistoryResponse;
 import com.NamVu.post.dto.response.PostResponse;
-import com.NamVu.post.dto.response.ProfileResponse;
+import com.NamVu.post.dto.response.PublicProfileResponse;
 import com.NamVu.post.entity.Post;
 import com.NamVu.post.entity.PostHistory;
 import com.NamVu.post.httpclient.ProfileClient;
@@ -153,7 +153,7 @@ public class PostServiceImpl implements PostService {
     }
 
     private PostResponse toResponse(Post post) {
-        Map<String, ProfileResponse> profiles = profileClient.getByUserIds(Set.of(post.getUserId())).getResult();
+        Map<String, PublicProfileResponse> profiles = profileClient.getByUserIds(Set.of(post.getUserId())).getResult();
         return mapToResponse(post, profiles);
     }
 
@@ -162,20 +162,20 @@ public class PostServiceImpl implements PostService {
                 .map(Post::getUserId)
                 .collect(Collectors.toSet());
 
-        Map<String, ProfileResponse> profiles = profileClient.getByUserIds(userIds).getResult();
+        Map<String, PublicProfileResponse> profiles = profileClient.getByUserIds(userIds).getResult();
 
         return posts.stream()
                 .map(post -> mapToResponse(post, profiles))
                 .toList();
     }
 
-    private PostResponse mapToResponse(Post post, Map<String, ProfileResponse> profiles) {
+    private PostResponse mapToResponse(Post post, Map<String, PublicProfileResponse> profiles) {
         PostResponse response = postMapper.toPostResponse(post);
         response.setElapsedTime(dateTimeFormatter.format(post.getCreatedDate()));
         response.setUpdated(!post.getCreatedDate().equals(post.getModifiedDate()));
 
         // Gán profile từ map đã có
-        ProfileResponse profile = profiles.get(post.getUserId());
+        PublicProfileResponse profile = profiles.get(post.getUserId());
 
         if (profile != null) {
             response.setFullName(profile.getFullName());

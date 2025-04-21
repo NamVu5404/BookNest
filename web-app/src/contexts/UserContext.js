@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useEffect, useReducer} from "react";
 import {getUid} from "../services/localStorageService";
-import {getProfileByUid} from "../services/profileService";
+import {getMyProfile} from "../services/profileService";
 
 // Khởi tạo context
 const UserContext = createContext();
@@ -27,7 +27,7 @@ export const UserProvider = ({children}) => {
             if (!uid) return;
 
             try {
-                const response = await getProfileByUid(uid);
+                const response = await getMyProfile();
                 dispatch({type: "SET_USER", payload: response.data.result});
             } catch (error) {
                 console.error("Error fetching user details", error);
@@ -44,7 +44,7 @@ export const UserProvider = ({children}) => {
         if (!uid) return dispatch({type: "CLEAR_USER"});
 
         try {
-            const response = await getProfileByUid(uid);
+            const response = await getMyProfile();
             dispatch({type: "SET_USER", payload: response.data.result});
         } catch (error) {
             console.error("Error updating user details", error);

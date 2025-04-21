@@ -4,9 +4,9 @@ import React, {useEffect, useState} from "react";
 import {useNavigate, useParams} from "react-router-dom";
 import ReusablePostList from "../../components/ReusablePostList";
 import {UserOutlined} from "@ant-design/icons";
-import {getProfileByUid} from "../../services/profileService";
 import {getUserPosts} from "../../services/postService";
 import {useUserDetails} from "../../contexts/UserContext";
+import {getPublicProfileByUid} from "../../services/profileService";
 
 const {Text} = Typography;
 
@@ -24,7 +24,7 @@ export default function Profile() {
 
         const fetchProfile = async () => {
             try {
-                const response = await getProfileByUid(userId);
+                const response = await getPublicProfileByUid(userId);
                 setUserProfile(response.data.result);
             } catch (error) {
                 console.error("Failed to fetch profile:", error);
@@ -105,22 +105,14 @@ export default function Profile() {
                     </div>
 
                     <div style={{borderTop: '1px solid #f0f0f0', paddingTop: '24px'}}>
-                        <div style={{marginBottom: '16px'}}>
-                            <Text type="secondary">Họ và tên</Text>
-                            <div style={{fontSize: '16px', marginTop: '4px'}}>
-                                {userProfile?.fullName || 'Chưa cập nhật'}
-                            </div>
-                        </div>
-
                         <Row gutter={16}>
                             <Col span={12}>
-                                <div style={{marginBottom: '16px'}}>
-                                    <Text type="secondary">Số điện thoại</Text>
-                                    <div style={{fontSize: '16px', marginTop: '4px'}}>
-                                        {userProfile?.phoneNumber || 'Chưa cập nhật'}
-                                    </div>
+                                <Text type="secondary">Họ và tên</Text>
+                                <div style={{fontSize: '16px', marginTop: '4px'}}>
+                                    {userProfile?.fullName || 'Chưa cập nhật'}
                                 </div>
                             </Col>
+
                             <Col span={12}>
                                 <div style={{marginBottom: '16px'}}>
                                     <Text type="secondary">Ngày sinh</Text>

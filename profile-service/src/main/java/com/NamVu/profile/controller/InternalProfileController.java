@@ -2,7 +2,8 @@ package com.NamVu.profile.controller;
 
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.profile.dto.request.ProfileCreateRequest;
-import com.NamVu.profile.dto.response.ProfileResponse;
+import com.NamVu.profile.dto.response.PrivateProfileResponse;
+import com.NamVu.profile.dto.response.PublicProfileResponse;
 import com.NamVu.profile.service.ProfileService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -22,20 +23,21 @@ public class InternalProfileController {
 
     /**
      * Lấy profile theo userId tương ứng
+     * - Chỉ cần lấy profile 1 lần nếu có nhiều userId trùng lặp
      *
      * @param userIds userIds
      * @return Map<String, ProfileResponse> userId, ProfileResponse
      */
     @GetMapping("/users/batch")
-    public ApiResponse<Map<String, ProfileResponse>> getByUserIds(@RequestParam Set<String> userIds) {
-        return ApiResponse.<Map<String, ProfileResponse>>builder()
+    public ApiResponse<Map<String, PublicProfileResponse>> getByUserIds(@RequestParam Set<String> userIds) {
+        return ApiResponse.<Map<String, PublicProfileResponse>>builder()
                 .result(profileService.getByUserIds(userIds))
                 .build();
     }
 
     @PostMapping("/users")
-    public ApiResponse<ProfileResponse> create(@RequestBody @Valid ProfileCreateRequest request) {
-        return ApiResponse.<ProfileResponse>builder()
+    public ApiResponse<PrivateProfileResponse> create(@RequestBody @Valid ProfileCreateRequest request) {
+        return ApiResponse.<PrivateProfileResponse>builder()
                 .result(profileService.create(request))
                 .build();
     }

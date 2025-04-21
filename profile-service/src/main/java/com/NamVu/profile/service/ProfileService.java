@@ -3,7 +3,8 @@ package com.NamVu.profile.service;
 import com.NamVu.common.dto.PageResponse;
 import com.NamVu.profile.dto.request.ProfileCreateRequest;
 import com.NamVu.profile.dto.request.ProfileUpdateRequest;
-import com.NamVu.profile.dto.response.ProfileResponse;
+import com.NamVu.profile.dto.response.PrivateProfileResponse;
+import com.NamVu.profile.dto.response.PublicProfileResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,13 +12,13 @@ import java.util.Map;
 import java.util.Set;
 
 public interface ProfileService {
-    ProfileResponse create(ProfileCreateRequest request);
+    PrivateProfileResponse create(ProfileCreateRequest request);
 
-    ProfileResponse update(String userId, ProfileUpdateRequest request);
+    PrivateProfileResponse update(String userId, ProfileUpdateRequest request);
 
-    ProfileResponse getByUserId(String userId);
+    PublicProfileResponse getPublicProfileByUserId(String userId);
 
-    Map<String, ProfileResponse> getByUserIds(Set<String> userIds);
+    Map<String, PublicProfileResponse> getByUserIds(Set<String> userIds);
 
     void updateAvatar(MultipartFile file);
 
@@ -25,5 +26,7 @@ public interface ProfileService {
 
     void deleteByUserId(String userId);
 
-    PageResponse<ProfileResponse> getAll(Pageable pageable);
+    PageResponse<PrivateProfileResponse> getAll(Pageable pageable);
+
+    PrivateProfileResponse getMyProfile();
 }

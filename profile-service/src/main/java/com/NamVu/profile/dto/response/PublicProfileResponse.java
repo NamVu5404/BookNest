@@ -10,11 +10,10 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProfileResponse {
+public class PublicProfileResponse {
     String id;
     String userId;
     String fullName;
-    String phoneNumber;
     LocalDate dob;
     String avatar;
     String bio;

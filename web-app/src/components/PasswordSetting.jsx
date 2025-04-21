@@ -3,11 +3,10 @@ import {useEffect, useState} from "react";
 import {getMyInfo} from "../services/userService";
 import {changePassword, setPassword} from "../services/passwordService";
 
-export default function Password() {
+export default function PasswordSetting() {
     const [myInfo, setMyInfo] = useState(null);
     const [changeLoading, setChangeLoading] = useState(false);
     const [setPasswordLoading, setSetPasswordLoading] = useState(false);
-    console.log(myInfo);
 
     useEffect(() => {
         const fetchMyInfo = async () => {

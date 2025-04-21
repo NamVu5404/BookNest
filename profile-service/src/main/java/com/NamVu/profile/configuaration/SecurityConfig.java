@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_GET_ENDPOINTS = {
-            "/internal/users/batch",
+            "/internal/users/batch", "/users/{userId}",
     };
 
     private static final String[] PUBLIC_POST_ENDPOINTS = {

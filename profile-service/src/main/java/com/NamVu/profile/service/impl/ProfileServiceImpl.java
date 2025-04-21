@@ -8,7 +8,8 @@ import com.NamVu.common.exception.ErrorCode;
 import com.NamVu.profile.dto.request.ProfileCreateRequest;
 import com.NamVu.profile.dto.request.ProfileUpdateRequest;
 import com.NamVu.profile.dto.response.FileResponse;
-import com.NamVu.profile.dto.response.ProfileResponse;
+import com.NamVu.profile.dto.response.PrivateProfileResponse;
+import com.NamVu.profile.dto.response.PublicProfileResponse;
 import com.NamVu.profile.entity.Profile;
 import com.NamVu.profile.httpclient.FileClient;
 import com.NamVu.profile.mapper.ProfileMapper;
@@ -40,48 +41,40 @@ public class ProfileServiceImpl implements ProfileService {
     FileClient fileClient;
 
     @Override
-    public ProfileResponse create(ProfileCreateRequest request) {
+    public PrivateProfileResponse create(ProfileCreateRequest request) {
         Profile profile = profileMapper.toProfile(request);
         profile = profileRepository.save(profile);
 
-        return profileMapper.toProfileResponse(profile);
+        return profileMapper.toPrivateProfileResponse(profile);
     }
 
     @Override
-    public ProfileResponse update(String userId, ProfileUpdateRequest request) {
-        Profile profile = profileRepository
-                .findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
+    @PreAuthorize("#userId == authentication.name")
+    public PrivateProfileResponse update(String userId, ProfileUpdateRequest request) {
+        Profile profile = getProfile(userId);
 
         profileMapper.updateProfile(profile, request);
         profile.setUserId(userId);
 
-        return profileMapper.toProfileResponse(profileRepository.save(profile));
+        return profileMapper.toPrivateProfileResponse(profileRepository.save(profile));
     }
 
     @Override
-    public ProfileResponse getByUserId(String userId) {
-        Profile profile = profileRepository
-                .findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
-
-        return profileMapper.toProfileResponse(profile);
+    public PublicProfileResponse getPublicProfileByUserId(String userId) {
+        return profileMapper.toPublicProfileResponse(getProfile(userId));
     }
 
     @Override
-    public Map<String, ProfileResponse> getByUserIds(Set<String> userIds) {
+    public Map<String, PublicProfileResponse> getByUserIds(Set<String> userIds) {
         List<Profile> profiles = profileRepository.findByUserIdInAndIsActive(userIds, StatusConstant.ACTIVE);
-        List<ProfileResponse> responses = profiles.stream().map(profileMapper::toProfileResponse).toList();
-        return responses.stream().collect(Collectors.toMap(ProfileResponse::getUserId, profile -> profile));
+        List<PublicProfileResponse> responses = profiles.stream().map(profileMapper::toPublicProfileResponse).toList();
+        return responses.stream().collect(Collectors.toMap(PublicProfileResponse::getUserId, profile -> profile));
     }
 
     @Override
     public void updateAvatar(MultipartFile file) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        Profile profile = profileRepository
-                .findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
+        Profile profile = getProfile(userId);
 
         FileResponse fileResponse = null;
 
@@ -102,10 +95,7 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public void deleteAvatar() {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
-
-        Profile profile = profileRepository
-                .findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
+        Profile profile = getProfile(userId);
 
         profile.setAvatar(null);
         profileRepository.save(profile);
@@ -113,25 +103,35 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public void deleteByUserId(String userId) {
-        Profile profile = profileRepository
-                .findByUserId(userId)
-                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
-
+        Profile profile = getProfile(userId);
         profile.setIsActive(StatusConstant.INACTIVE);
         profileRepository.save(profile);
     }
 
     @Override
+    public PrivateProfileResponse getMyProfile() {
+        String userId = SecurityContextHolder.getContext().getAuthentication().getName();
+        Profile profile = getProfile(userId);
+
+        return profileMapper.toPrivateProfileResponse(profile);
+    }
+
+    @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public PageResponse<ProfileResponse> getAll(Pageable pageable) {
+    public PageResponse<PrivateProfileResponse> getAll(Pageable pageable) {
         Page<Profile> profiles = profileRepository.findByIsActive(StatusConstant.ACTIVE, pageable);
 
-        return PageResponse.<ProfileResponse>builder()
+        return PageResponse.<PrivateProfileResponse>builder()
                 .currentPage(profiles.getNumber() + 1)
                 .pageSize(profiles.getSize())
                 .totalPages(profiles.getTotalPages())
                 .totalElements(profiles.getTotalElements())
-                .data(profiles.stream().map(profileMapper::toProfileResponse).toList())
+                .data(profiles.stream().map(profileMapper::toPrivateProfileResponse).toList())
                 .build();
+    }
+
+    private Profile getProfile(String userId) {
+        return profileRepository.findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
+                .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
     }
 }
