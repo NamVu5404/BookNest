@@ -26,7 +26,21 @@ public interface ProfileRepository extends Neo4jRepository<Profile, String> {
             ORDER BY friend.userId ASC
             LIMIT $limit
             """)
-    List<Profile> getAllFriendsAfterLastCreatedAt(String userId, String lastUserId, int limit);
+    List<Profile> getAllFriendsAfterLastUserId(String userId, String lastUserId, int limit);
+
+    @Query("""
+            MATCH (me:Profile {userId: $userId})
+            MATCH (p:Profile)
+            WHERE p.userId <> me.userId
+              AND NOT (me)-[:FRIEND]->(p)
+              AND NOT (me)-[:FRIEND_REQUEST]->(p)
+              AND NOT (p)-[:FRIEND_REQUEST]->(me)
+              AND ($lastUserId IS NULL OR p.userId > $lastUserId)
+            RETURN p
+            ORDER BY p.userId ASC
+            LIMIT $limit
+            """)
+    List<Profile> getFriendSuggestionsAfterLastUserId(String userId, String lastUserId, int limit);
 
     @Query("""
             MATCH (a:Profile)-[r:FRIEND]-(b:Profile)

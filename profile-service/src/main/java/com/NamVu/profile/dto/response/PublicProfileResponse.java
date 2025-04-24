@@ -1,5 +1,6 @@
 package com.NamVu.profile.dto.response;
 
+import com.NamVu.profile.enums.FriendStatus;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -17,4 +18,5 @@ public class PublicProfileResponse {
     LocalDate dob;
     String avatar;
     String bio;
+    FriendStatus status;
 }

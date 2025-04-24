@@ -4,11 +4,11 @@ import com.NamVu.common.constant.StatusConstant;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
 import com.NamVu.profile.dto.request.FriendCreateRequest;
-import com.NamVu.profile.dto.response.FriendRequestResponse;
 import com.NamVu.profile.dto.response.LimitedResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
 import com.NamVu.profile.entity.FriendRequest;
 import com.NamVu.profile.entity.Profile;
+import com.NamVu.profile.enums.FriendStatus;
 import com.NamVu.profile.mapper.ProfileMapper;
 import com.NamVu.profile.repository.ProfileRepository;
 import com.NamVu.profile.service.FriendService;
@@ -111,39 +111,54 @@ public class FriendServiceImpl implements FriendService {
 
     @Override
     @PreAuthorize("authentication.name == #userId")
-    public Set<FriendRequestResponse> getSentRequests(String userId) {
+    public Set<PublicProfileResponse> getSentRequests(String userId) {
         Profile profile = getProfile(userId);
 
         return profile.getSentRequests().stream()
-                .map(request ->
-                        FriendRequestResponse.builder()
-                                .profile(profileMapper.toPublicProfileResponse(request.getReceiver()))
-                                .createdAt(request.getCreatedAt())
-                                .updatedAt(request.getUpdatedAt())
-                                .build()
-                )
+                .map(request -> {
+                    var response = profileMapper.toPublicProfileResponse(request.getReceiver());
+                    response.setStatus(FriendStatus.SENT);
+                    return response;
+                })
                 .collect(Collectors.toSet());
     }
 
     @Override
     @PreAuthorize("authentication.name == #userId")
-    public Set<FriendRequestResponse> getReceivedRequests(String userId) {
+    public Set<PublicProfileResponse> getReceivedRequests(String userId) {
         Profile profile = getProfile(userId);
 
         return profile.getReceivedRequests().stream()
-                .map(request -> FriendRequestResponse.builder()
-                        .profile(profileMapper.toPublicProfileResponse(getProfile(request.getSenderId())))
-                        .createdAt(request.getCreatedAt())
-                        .updatedAt(request.getUpdatedAt())
-                        .build()
-                )
+                .map(request -> {
+                    var response = profileMapper.toPublicProfileResponse(getProfile(request.getSenderId()));
+                    response.setStatus(FriendStatus.RECEIVED);
+                    return response;
+                })
                 .collect(Collectors.toSet());
     }
 
     @Override
-    @PreAuthorize("authentication.name == #userId")
     public LimitedResponse<PublicProfileResponse> getAllFriends(String userId, String lastUserId, int limit) {
-        List<Profile> profiles = profileRepository.getAllFriendsAfterLastCreatedAt(userId, lastUserId, limit);
+        List<Profile> profiles = profileRepository.getAllFriendsAfterLastUserId(userId, lastUserId, limit);
+
+        List<PublicProfileResponse> responses = profiles.stream()
+                .map(profile -> {
+                    var response = profileMapper.toPublicProfileResponse(profile);
+                    response.setStatus(FriendStatus.FRIEND);
+                    return response;
+                })
+                .toList();
+
+        return LimitedResponse.<PublicProfileResponse>builder()
+                .limit(limit)
+                .lastUserId(lastUserId)
+                .data(responses)
+                .build();
+    }
+
+    @Override
+    public LimitedResponse<PublicProfileResponse> getFriendSuggestions(String userId, String lastUserId, int limit) {
+        List<Profile> profiles = profileRepository.getFriendSuggestionsAfterLastUserId(userId, lastUserId, limit);
 
         List<PublicProfileResponse> responses = profiles.stream()
                 .map(profileMapper::toPublicProfileResponse)

@@ -55,15 +55,4 @@ public class ProfileController {
         profileService.deleteAvatar();
         return ApiResponse.builder().build();
     }
-
-    @GetMapping
-    public ApiResponse<PageResponse<PrivateProfileResponse>> getAll(
-            @RequestParam(name = "page", defaultValue = "1") int page,
-            @RequestParam(name = "size", defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page - 1, size);
-
-        return ApiResponse.<PageResponse<PrivateProfileResponse>>builder()
-                .result(profileService.getAll(pageable))
-                .build();
-    }
 }

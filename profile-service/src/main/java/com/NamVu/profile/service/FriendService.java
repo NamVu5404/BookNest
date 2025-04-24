@@ -1,7 +1,6 @@
 package com.NamVu.profile.service;
 
 import com.NamVu.profile.dto.request.FriendCreateRequest;
-import com.NamVu.profile.dto.response.FriendRequestResponse;
 import com.NamVu.profile.dto.response.LimitedResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
 
@@ -18,9 +17,11 @@ public interface FriendService {
 
     void unfriend(String friendId);
 
-    Set<FriendRequestResponse> getSentRequests(String userId);
+    Set<PublicProfileResponse> getSentRequests(String userId);
 
-    Set<FriendRequestResponse> getReceivedRequests(String userId);
+    Set<PublicProfileResponse> getReceivedRequests(String userId);
 
     LimitedResponse<PublicProfileResponse> getAllFriends(String userId, String lastUserId, int limit);
+
+    LimitedResponse<PublicProfileResponse> getFriendSuggestions(String userId, String lastUserId, int limit);
 }

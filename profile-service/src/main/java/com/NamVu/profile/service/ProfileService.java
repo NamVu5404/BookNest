@@ -26,7 +26,5 @@ public interface ProfileService {
 
     void deleteByUserId(String userId);
 
-    PageResponse<PrivateProfileResponse> getAll(Pageable pageable);
-
     PrivateProfileResponse getMyProfile();
 }
