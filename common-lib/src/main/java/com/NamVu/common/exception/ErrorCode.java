@@ -42,6 +42,7 @@ public enum ErrorCode {
     FRIEND_REQUEST_NOT_FOUND(1024, "Lời mời kết bạn không tồn tại", HttpStatus.NOT_FOUND),
     CANNOT_UNFRIEND(1028, "Không thể hủy kết bạn", HttpStatus.BAD_REQUEST),
     ALREADY_FRIEND(1029, "Các bạn đã là bạn bè", HttpStatus.BAD_REQUEST),
+    COMMENT_NOT_EXISTED(1030, "Bình luận không tồn tại", HttpStatus.NOT_FOUND),
     ;
 
     int code;

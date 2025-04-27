@@ -14,4 +14,3 @@ public interface ProfileClient {
     @GetMapping("/internal/users/batch")
     ApiResponse<Map<String, PublicProfileResponse>> getByUserIds(@RequestParam Set<String> userIds);
 }
-

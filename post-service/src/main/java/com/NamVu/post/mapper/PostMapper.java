@@ -1,14 +1,14 @@
 package com.NamVu.post.mapper;
 
-import com.NamVu.post.dto.response.PostHistoryResponse;
+import com.NamVu.post.dto.response.PostEditHistoryResponse;
 import com.NamVu.post.dto.response.PostResponse;
 import com.NamVu.post.entity.Post;
-import com.NamVu.post.entity.PostHistory;
+import com.NamVu.post.entity.PostEditHistory;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface PostMapper {
     PostResponse toPostResponse(Post post);
 
-    PostHistoryResponse toPostHistoryResponse(PostHistory postHistory, String elapsedTime);
+    PostEditHistoryResponse toPostEditHistoryResponse(PostEditHistory postEditHistory, String elapsedTime);
 }

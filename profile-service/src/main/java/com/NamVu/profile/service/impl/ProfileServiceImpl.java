@@ -139,7 +139,8 @@ public class ProfileServiceImpl implements ProfileService {
                     .anyMatch(request -> request.getSenderId().equals(profile.getUserId()))) {
                 status = FriendStatus.RECEIVED;
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         response.setStatus(status);
 

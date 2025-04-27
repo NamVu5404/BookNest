@@ -1,7 +1,6 @@
 package com.NamVu.profile.controller;
 
 import com.NamVu.common.dto.ApiResponse;
-import com.NamVu.common.dto.PageResponse;
 import com.NamVu.profile.dto.request.ProfileUpdateRequest;
 import com.NamVu.profile.dto.response.PrivateProfileResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
@@ -10,8 +9,6 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

@@ -44,10 +44,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     private String[] PUBLIC_ENDPOINTS = {
             "/identity/auth/.*", "/identity/users", "/identity/otps", "/identity/otps/verification",
             "/identity/password/reset",
-            "/notification/.*",
-            "/post/posts", "/post/posts/users/.*", "/post/posts/.*/history",
-            "/file/media/download/.*",
-            "/profile/users/.*", "/profile/users/.*/friends"
+            "/notifications/.*",
+            "/posts", "/posts/users/.*", "/posts/.*/edit-history", "/posts/.*/likes", "/posts/.*/comments/all",
+            "/posts/comments/.*/sub-comments/all", "/posts/comments/.*/edit-history",
+            "/files/media/download/.*",
+            "/profiles/users/.*", "/profiles/users/.*/friends"
     };
 
     @Override

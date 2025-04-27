@@ -1,11 +1,9 @@
 package com.NamVu.profile.service;
 
-import com.NamVu.common.dto.PageResponse;
 import com.NamVu.profile.dto.request.ProfileCreateRequest;
 import com.NamVu.profile.dto.request.ProfileUpdateRequest;
 import com.NamVu.profile.dto.response.PrivateProfileResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;

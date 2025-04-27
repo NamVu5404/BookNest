@@ -3,7 +3,9 @@ package com.NamVu.post.entity;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.MongoId;
+
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -11,12 +13,11 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Document
-public class Post extends BaseEntity {
-    String userId;
+public class BaseEntity {
+    @MongoId
+    String id;
 
-    String content;
+    Instant createdDate;
 
-    @Builder.Default
-    Integer isActive = 1;
+    Instant modifiedDate;
 }

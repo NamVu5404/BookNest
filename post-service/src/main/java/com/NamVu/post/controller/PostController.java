@@ -3,7 +3,7 @@ package com.NamVu.post.controller;
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.common.dto.PageResponse;
 import com.NamVu.post.dto.request.PostRequest;
-import com.NamVu.post.dto.response.PostHistoryResponse;
+import com.NamVu.post.dto.response.PostEditHistoryResponse;
 import com.NamVu.post.dto.response.PostResponse;
 import com.NamVu.post.service.PostService;
 import lombok.AccessLevel;
@@ -25,7 +25,8 @@ public class PostController {
     public ApiResponse<PageResponse<PostResponse>> getAll(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdDate");
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdDate")
+                .and(Sort.by(Sort.Direction.ASC, "id"));
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         return ApiResponse.<PageResponse<PostResponse>>builder()
@@ -38,7 +39,8 @@ public class PostController {
             @PathVariable("id") String userId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdDate");
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdDate")
+                .and(Sort.by(Sort.Direction.ASC, "id"));
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
         return ApiResponse.<PageResponse<PostResponse>>builder()
@@ -46,15 +48,16 @@ public class PostController {
                 .build();
     }
 
-    @GetMapping("/{postId}/history")
-    public ApiResponse<PageResponse<PostHistoryResponse>> getHistoryByPostId(
+    @GetMapping("/{postId}/edit-history")
+    public ApiResponse<PageResponse<PostEditHistoryResponse>> getHistoryByPostId(
             @PathVariable String postId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size) {
-        Sort sort = Sort.by(Sort.Direction.DESC, "modifiedDate");
+        Sort sort = Sort.by(Sort.Direction.DESC, "modifiedDate")
+                .and(Sort.by(Sort.Direction.ASC, "id"));
         Pageable pageable = PageRequest.of(page - 1, size, sort);
 
-        return ApiResponse.<PageResponse<PostHistoryResponse>>builder()
+        return ApiResponse.<PageResponse<PostEditHistoryResponse>>builder()
                 .result(postService.getHistoryByPostId(postId, pageable))
                 .build();
     }

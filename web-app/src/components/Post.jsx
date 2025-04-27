@@ -32,7 +32,7 @@ const Post = forwardRef((props, ref) => {
   const contentRef = useRef(null);
   const [contentHeight, setContentHeight] = useState(0);
 
-  const [postHistory, setPostHistory] = useState([]);
+  const [postEditHistory, setPostHistory] = useState([]);
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
@@ -426,7 +426,7 @@ const Post = forwardRef((props, ref) => {
           </div>
         ) : (
           <Timeline>
-            {postHistory.map((history) => (
+            {postEditHistory.map((history) => (
               <Timeline.Item key={history.id}>
                 <div style={{ marginBottom: 16 }}>
                   <div style={{ marginBottom: 8 }}>

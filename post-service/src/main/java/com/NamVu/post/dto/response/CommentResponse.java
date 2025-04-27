@@ -1,19 +1,22 @@
 package com.NamVu.post.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.Instant;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PostHistoryResponse {
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class CommentResponse {
     String id;
     String postId;
+    String parentId;
     String content;
+    int subComment;
     String elapsedTime;
-    Instant modifiedDate;
+    PublicProfileResponse profile;
+    boolean updated;
 }

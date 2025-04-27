@@ -12,9 +12,9 @@ spring:
 server:
   port: 8084
   servlet:
-    context-path: /file
+    context-path: /files
 
 app:
   file:
     storage-dir: F:\BookNest_files
-    urlPrefix: http://localhost:8888/api/v1/file/media/download/
+    urlPrefix: http://localhost:8888/api/v1/files/media/download/

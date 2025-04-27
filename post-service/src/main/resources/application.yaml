@@ -1,7 +1,5 @@
 server:
   port: 8083
-  servlet:
-    context-path: /post
 
 spring:
   application:
@@ -12,4 +10,4 @@ spring:
 
 app:
   services:
-    profile: http://localhost:8081/profile
+    profile: http://localhost:8081/profiles

@@ -5,14 +5,16 @@ import com.NamVu.common.dto.PageResponse;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
 import com.NamVu.post.dto.request.PostRequest;
-import com.NamVu.post.dto.response.PostHistoryResponse;
+import com.NamVu.post.dto.response.PostEditHistoryResponse;
 import com.NamVu.post.dto.response.PostResponse;
 import com.NamVu.post.dto.response.PublicProfileResponse;
 import com.NamVu.post.entity.Post;
-import com.NamVu.post.entity.PostHistory;
+import com.NamVu.post.entity.PostEditHistory;
 import com.NamVu.post.httpclient.ProfileClient;
 import com.NamVu.post.mapper.PostMapper;
-import com.NamVu.post.repository.PostHistoryRepository;
+import com.NamVu.post.repository.CommentRepository;
+import com.NamVu.post.repository.LikeRepository;
+import com.NamVu.post.repository.PostEditHistoryRepository;
 import com.NamVu.post.repository.PostRepository;
 import com.NamVu.post.service.DateTimeFormatter;
 import com.NamVu.post.service.PostService;
@@ -41,7 +43,9 @@ public class PostServiceImpl implements PostService {
     PostMapper postMapper;
     DateTimeFormatter dateTimeFormatter;
     ProfileClient profileClient;
-    PostHistoryRepository postHistoryRepository;
+    PostEditHistoryRepository postEditHistoryRepository;
+    LikeRepository likeRepository;
+    CommentRepository commentRepository;
 
     @Override
     public PageResponse<PostResponse> getAll(Pageable pageable) {
@@ -70,17 +74,17 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public PageResponse<PostHistoryResponse> getHistoryByPostId(String postId, Pageable pageable) {
-        Page<PostHistory> postHistories = postHistoryRepository.findByPostId(postId, pageable);
+    public PageResponse<PostEditHistoryResponse> getHistoryByPostId(String postId, Pageable pageable) {
+        Page<PostEditHistory> postHistories = postEditHistoryRepository.findByPostId(postId, pageable);
 
-        return PageResponse.<PostHistoryResponse>builder()
+        return PageResponse.<PostEditHistoryResponse>builder()
                 .totalPages(postHistories.getTotalPages())
                 .pageSize(pageable.getPageSize())
                 .currentPage(pageable.getPageNumber() + 1)
                 .totalElements(postHistories.getTotalElements())
                 .data(postHistories.stream()
-                        .map(postHistory -> postMapper.toPostHistoryResponse(postHistory,
-                                dateTimeFormatter.format(postHistory.getModifiedDate())))
+                        .map(postEditHistory -> postMapper.toPostEditHistoryResponse(postEditHistory,
+                                dateTimeFormatter.format(postEditHistory.getModifiedDate())))
                         .toList())
                 .build();
     }
@@ -100,7 +104,7 @@ public class PostServiceImpl implements PostService {
         post = postRepository.save(post);
 
         // Lưu bản gốc
-        savePostHistory(post);
+        savePostEditHistory(post);
 
         return toResponse(post);
     }
@@ -109,7 +113,7 @@ public class PostServiceImpl implements PostService {
     public PostResponse update(String id, PostRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        Post post = postRepository.findById(id)
+        Post post = postRepository.findByIdAndIsActive(id, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_EXISTED));
 
         // Chỉ được update Post của chính mình
@@ -122,7 +126,7 @@ public class PostServiceImpl implements PostService {
         post = postRepository.save(post);
 
         // Lưu lịch sử chỉnh sửa Post
-        savePostHistory(post);
+        savePostEditHistory(post);
 
         return toResponse(post);
     }
@@ -143,13 +147,13 @@ public class PostServiceImpl implements PostService {
         postRepository.save(post);
     }
 
-    private void savePostHistory(Post post) {
-        PostHistory postHistory = PostHistory.builder()
+    private void savePostEditHistory(Post post) {
+        PostEditHistory postEditHistory = PostEditHistory.builder()
                 .postId(post.getId())
                 .content(post.getContent())
                 .modifiedDate(post.getModifiedDate())
                 .build();
-        postHistoryRepository.save(postHistory);
+        postEditHistoryRepository.save(postEditHistory);
     }
 
     private PostResponse toResponse(Post post) {
@@ -171,15 +175,17 @@ public class PostServiceImpl implements PostService {
 
     private PostResponse mapToResponse(Post post, Map<String, PublicProfileResponse> profiles) {
         PostResponse response = postMapper.toPostResponse(post);
+
         response.setElapsedTime(dateTimeFormatter.format(post.getCreatedDate()));
         response.setUpdated(!post.getCreatedDate().equals(post.getModifiedDate()));
+        response.setLikes(likeRepository.countByPostId(post.getId()));
+        response.setComments(commentRepository.countByPostIdAndIsActive(post.getId(), StatusConstant.ACTIVE));
 
         // Gán profile từ map đã có
         PublicProfileResponse profile = profiles.get(post.getUserId());
 
         if (profile != null) {
-            response.setFullName(profile.getFullName());
-            response.setAvatar(profile.getAvatar());
+            response.setProfile(profile);
         } else {
             throw new AppException(ErrorCode.PROFILE_NOT_EXISTED);
         }

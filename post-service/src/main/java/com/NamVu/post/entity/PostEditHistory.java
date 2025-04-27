@@ -12,11 +12,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Document
-public class Post extends BaseEntity {
-    String userId;
+public class PostEditHistory extends BaseEntity {
+    String postId;
 
     String content;
-
-    @Builder.Default
-    Integer isActive = 1;
 }
