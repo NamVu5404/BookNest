@@ -24,7 +24,7 @@ public class PostController {
     @GetMapping
     public ApiResponse<PageResponse<PostResponse>> getAll(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size) {
+            @RequestParam(value = "size", defaultValue = "10") int size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdDate")
                 .and(Sort.by(Sort.Direction.ASC, "id"));
         Pageable pageable = PageRequest.of(page - 1, size, sort);
@@ -38,7 +38,7 @@ public class PostController {
     public ApiResponse<PageResponse<PostResponse>> getByUserId(
             @PathVariable("id") String userId,
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "20") int size) {
+            @RequestParam(value = "size", defaultValue = "10") int size) {
         Sort sort = Sort.by(Sort.Direction.DESC, "createdDate")
                 .and(Sort.by(Sort.Direction.ASC, "id"));
         Pageable pageable = PageRequest.of(page - 1, size, sort);

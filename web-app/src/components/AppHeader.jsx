@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { useUserDetails } from "../contexts/UserContext";
 import { logOut } from "../services/authenticationService";
 import LoginRequiredModal from "./LoginRequiredModal";
+import logo from "../assets/images/booknest-text-logo.svg";
 
 const { Header } = Layout;
 
@@ -84,7 +85,7 @@ export default function AppHeader() {
         }}
       >
         <img
-          src={`/logo/booknest-text-logo.svg?v=1.0.0`}
+          src={logo}
           alt="logo"
           height={50}
           onClick={() => navigate("/")}

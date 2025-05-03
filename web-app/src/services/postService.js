@@ -2,26 +2,26 @@ import { API } from "../configurations/configuration";
 import httpClient from "../configurations/httpClient";
 import { getToken, getUid } from "./localStorageService";
 
-export const getAllPosts = async (page = 1, size = 20) => {
+export const getAllPosts = async (page = 1, size = 10) => {
   return await httpClient.get(API.GET_ALL_POST, {
     params: { page, size },
   });
 };
 
-export const getMyPosts = async (page = 1, size = 20) => {
+export const getMyPosts = async (page = 1, size = 10) => {
   return await httpClient.get(`${API.GET_MY_POST}/${getUid()}`, {
     params: { page, size },
   });
 };
 
-export const getUserPosts = async (userId, page = 1, size = 20) => {
+export const getUserPosts = async (userId, page = 1, size = 10) => {
   return await httpClient.get(`${API.GET_MY_POST}/${userId}`, {
     params: { page, size },
   });
 };
 
 export const getPostHistory = async (postId, page = 1, size = 10) => {
-  return await httpClient.get(`${API.GET_POST_HISTORY}/${postId}/history`, {
+  return await httpClient.get(`${API.GET_POST_HISTORY}/${postId}/edit-history`, {
     params: { page, size },
   });
 };

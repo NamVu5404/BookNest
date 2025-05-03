@@ -16,4 +16,5 @@ public class PostResponse {
     boolean updated;
     int likes;
     int comments;
+    boolean liked;
 }

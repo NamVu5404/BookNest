@@ -40,4 +40,5 @@ export const API = {
   CANCEL_FRIEND_REQUEST: `/profiles/friends/requests`,
   RESPOND_FRIEND_REQUEST: `/profiles/friends/requests`,
   UNFRIEND: `/profiles/friends`,
+  TOGGLE_LIKE: `/posts`,
 };

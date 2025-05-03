@@ -1,9 +1,9 @@
 import React from "react";
-import {Button, Modal, Space, Typography} from "antd";
-import {useNavigate} from "react-router-dom";
-import {ExclamationCircleOutlined} from "@ant-design/icons";
+import { Button, Modal, Space, Typography } from "antd";
+import { useNavigate } from "react-router-dom";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 
-const {Text, Title} = Typography;
+const { Text, Title } = Typography;
 
 /**
  * LoginRequiredModal - Component hiển thị thông báo yêu cầu đăng nhập
@@ -17,45 +17,45 @@ const {Text, Title} = Typography;
  * @returns {JSX.Element} LoginRequiredModal component
  */
 export default function LoginRequiredModal({
-                                               isOpen = false,
-                                               onClose = () => {
-                                               },
-                                               title = "Yêu cầu đăng nhập",
-                                               message = "Bạn cần đăng nhập để sử dụng tính năng này",
-                                               redirectPath = "/login",
-                                               buttonText = "Đăng nhập ngay",
-                                           }) {
-    const navigate = useNavigate();
+  isOpen = false,
+  onClose = () => {
+  },
+  title = "Yêu cầu đăng nhập",
+  message = "Bạn cần đăng nhập để sử dụng tính năng này",
+  redirectPath = "/login",
+  buttonText = "Đăng nhập ngay",
+}) {
+  const navigate = useNavigate();
 
-    const handleRedirect = () => {
-        onClose();
-        navigate(redirectPath);
-    };
+  const handleRedirect = () => {
+    onClose();
+    navigate(redirectPath);
+  };
 
-    return (
-        <Modal
-            style={{maxWidth: 350}}
-            title={
-                <Space>
-                    <ExclamationCircleOutlined style={{color: "#faad14"}}/>
-                    <Title level={5} style={{margin: 0}}>
-                        {title}
-                    </Title>
-                </Space>
-            }
-            open={isOpen}
-            onCancel={onClose}
-            footer={[
-                <Button key="cancel" onClick={onClose}>
-                    Đóng
-                </Button>,
-                <Button key="login" type="primary" onClick={handleRedirect}>
-                    {buttonText}
-                </Button>,
-            ]}
-            centered
-        >
-            <Text>{message}</Text>
-        </Modal>
-    );
+  return (
+    <Modal
+      style={{ maxWidth: 350 }}
+      title={
+        <Space>
+          <ExclamationCircleOutlined style={{ color: "#faad14" }} />
+          <Title level={5} style={{ margin: 0 }}>
+            {title}
+          </Title>
+        </Space>
+      }
+      open={isOpen}
+      onCancel={onClose}
+      footer={[
+        <Button key="cancel" onClick={onClose}>
+          Đóng
+        </Button>,
+        <Button key="login" type="primary" onClick={handleRedirect}>
+          {buttonText}
+        </Button>,
+      ]}
+      centered
+    >
+      <Text>{message}</Text>
+    </Modal>
+  );
 }

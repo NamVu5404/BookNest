@@ -8,6 +8,7 @@ import com.NamVu.post.dto.request.PostRequest;
 import com.NamVu.post.dto.response.PostEditHistoryResponse;
 import com.NamVu.post.dto.response.PostResponse;
 import com.NamVu.post.dto.response.PublicProfileResponse;
+import com.NamVu.post.entity.Like;
 import com.NamVu.post.entity.Post;
 import com.NamVu.post.entity.PostEditHistory;
 import com.NamVu.post.httpclient.ProfileClient;
@@ -29,6 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -168,8 +170,33 @@ public class PostServiceImpl implements PostService {
 
         Map<String, PublicProfileResponse> profiles = profileClient.getByUserIds(userIds).getResult();
 
+        // Tìm post đã liked của user hiện tại
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        List<String> likedPostIds = new ArrayList<>();
+
+        if (authentication != null) {
+            List<String> postIds = posts.getContent()
+                    .stream()
+                    .map(Post::getId)
+                    .toList();
+
+            String currentUserId = authentication.getName();
+
+            likedPostIds = likeRepository.findByUserIdAndPostIdIn(currentUserId, postIds)
+                    .stream()
+                    .map(Like::getPostId)
+                    .toList();
+        }
+
+        final List<String> finalLikedPostIds = likedPostIds;
+
         return posts.stream()
-                .map(post -> mapToResponse(post, profiles))
+                .map(post -> {
+                    PostResponse postResponse = mapToResponse(post, profiles);
+                    postResponse.setLiked(finalLikedPostIds.contains(postResponse.getId()));
+                    return postResponse;
+                })
                 .toList();
     }
 

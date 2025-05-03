@@ -1,9 +1,13 @@
 import {
+  CommentOutlined,
   DeleteOutlined,
   EditOutlined,
   EllipsisOutlined,
   ExclamationCircleOutlined,
+  HeartFilled,
+  HeartOutlined,
   HistoryOutlined,
+  ShareAltOutlined,
   UserOutlined
 } from "@ant-design/icons";
 import { Avatar, Button, Dropdown, message, Modal, Spin, Timeline, Typography } from "antd";
@@ -15,6 +19,10 @@ import { useNavigate } from "react-router-dom";
 import '../assets/css/Post.css';
 import { getUid } from "../services/localStorageService";
 import { deletePost, getPostHistory, updatePost } from "../services/postService";
+import { isAuthenticated } from "../services/authenticationService";
+import LoginRequiredModal from "../components/LoginRequiredModal"
+import { toggleLike } from "../services/likeService";
+import CommentModal from "./CommentModal";
 
 const { Text } = Typography;
 const { confirm } = Modal;
@@ -22,10 +30,11 @@ const { confirm } = Modal;
 const Post = forwardRef((props, ref) => {
   // Safely destructure with default values
   const { post = {} } = props;
-  const { userId, avatar, fullName, elapsedTime, content } = post;
+  const { profile, elapsedTime, content, likes = 0, comments = 0, liked = false } = post;
 
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editedContent, setEditedContent] = useState(content || '');
+  const [showLoginRequiredModal, setShowLoginRequiredModal] = useState(false);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const maxHeight = 300;
@@ -36,13 +45,44 @@ const Post = forwardRef((props, ref) => {
   const [isHistoryModalVisible, setIsHistoryModalVisible] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
   const [updateLoading, setUpdateLoading] = useState(false);
-
   const navigate = useNavigate();
-
   const quillRef = useRef(null);
+
+  const [isLiked, setIsLiked] = useState(liked);
+  const [likeCount, setLikeCount] = useState(likes);
+  const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
+
+  const handleLike = async () => {
+    if (!isAuthenticated()) {
+      setShowLoginRequiredModal(true);
+      return;
+    }
+
+    try {
+      if (isLiked) {
+        setLikeCount(prevCount => prevCount - 1);
+      } else {
+        setLikeCount(prevCount => prevCount + 1);
+      }
+      setIsLiked(!isLiked);
+
+      await toggleLike(post.id);
+    } catch (error) {
+      message.error(error.response?.data?.message || "Lỗi khi yêu thích bài viết!");
+      console.error("Lỗi khi yêu thích bài viết:", error);
+    }
+  };
+
+  const handleComment = () => {
+    setIsCommentModalVisible(true);
+  };
 
   const toggleContent = () => {
     setIsExpanded(!isExpanded);
+  };
+
+  const handleCloseModal = () => {
+    setShowLoginRequiredModal(false);
   };
 
   useEffect(() => {
@@ -58,6 +98,8 @@ const Post = forwardRef((props, ref) => {
       setIsHistoryModalVisible(true);
       const response = await getPostHistory(post.id, 1, 999);
       setPostHistory(response.data?.result.data);
+      console.log(response.data?.result.data);
+
     } catch (error) {
       message.error(error.response?.data?.message || "Lỗi khi lấy lịch sử bài viết!");
       console.error("Lỗi khi lấy lịch sử bài viết:", error);
@@ -204,11 +246,11 @@ const Post = forwardRef((props, ref) => {
         {/* Avatar và thông tin người dùng */}
         <div
           style={{ display: "flex", flexDirection: "row", alignItems: "center", cursor: "pointer" }}
-          onClick={() => navigate(`/profile/${userId}`)}
+          onClick={() => navigate(`/profile/${profile.userId}`)}
         >
-          {avatar ? (
+          {profile.avatar ? (
             <Avatar
-              src={avatar}
+              src={profile.avatar}
               size="large"
               style={{ marginRight: 12 }}
             />
@@ -220,9 +262,9 @@ const Post = forwardRef((props, ref) => {
             />
           )}
           <div>
-            <Text strong>{fullName}</Text>
+            <Text strong>{profile.fullName}</Text>
             <div>
-              <Text type="secondary" style={{ fontSize: "12px" }}>
+              <Text type="secondary" style={{ fontSize: "13px" }}>
                 {elapsedTime}
               </Text>
 
@@ -234,11 +276,11 @@ const Post = forwardRef((props, ref) => {
         </div>
 
         {/* Dropdown menu cho các chức năng */}
-        {(userId === getUid() || post.updated) && (
+        {(profile.userId === getUid() || post.updated) && (
           <Dropdown
             menu={{
               items: [
-                ...(userId === getUid() ? [
+                ...(profile.userId === getUid() ? [
                   {
                     key: 'edit',
                     icon: <EditOutlined style={{ fontSize: '16px' }} />,
@@ -329,6 +371,40 @@ const Post = forwardRef((props, ref) => {
             {isExpanded ? 'Ẩn bớt' : 'Xem thêm'}
           </Button>
         )}
+      </div>
+
+      <div className="post-actions" style={{
+        display: 'flex',
+        alignItems: 'center',
+        paddingTop: 8,
+        borderTop: '1px solid #f0f0f0',
+        marginTop: '12px'
+      }}>
+        <Button
+          type="text"
+          icon={isLiked ? <HeartFilled style={{ color: '#ff4d4f' }} /> : <HeartOutlined />}
+          onClick={handleLike}
+          style={{ fontSize: '15px', display: 'flex', alignItems: 'center' }}
+        >
+          <span style={{ marginLeft: '4px' }}>{likeCount > 0 ? likeCount : ''}</span>
+        </Button>
+
+        <Button
+          type="text"
+          icon={<CommentOutlined />}
+          onClick={handleComment}
+          style={{ fontSize: '15px', display: 'flex', alignItems: 'center', marginLeft: '8px' }}
+        >
+          <span style={{ marginLeft: '4px' }}>{comments > 0 ? comments : ''}</span>
+        </Button>
+
+        <Button
+          type="text"
+          icon={<ShareAltOutlined />}
+          style={{ fontSize: '15px', marginLeft: '8px' }}
+        >
+          <span style={{ marginLeft: '4px' }}>Chia sẻ</span>
+        </Button>
       </div>
 
       {/* Modal chỉnh sửa */}
@@ -426,20 +502,25 @@ const Post = forwardRef((props, ref) => {
           </div>
         ) : (
           <Timeline>
-            {postEditHistory.map((history) => (
+            {postEditHistory.map((history, index) => (
               <Timeline.Item key={history.id}>
-                <div style={{ marginBottom: 16 }}>
+                <div>
                   <div style={{ marginBottom: 8 }}>
-                    <Text type="secondary" style={{ fontSize: '12px' }}>
+                    <Text type="secondary" style={{ fontSize: '13px' }}>
                       {history.elapsedTime}
                     </Text>
+                    {index === 0 && (
+                      <Text type="success" style={{ marginLeft: '10px', fontSize: 13 }}>
+                        Hiện tại
+                      </Text>
+                    )}
                   </div>
                   <div
                     style={{
                       backgroundColor: '#f5f5f5',
                       padding: '12px',
                       borderRadius: '6px',
-                      fontSize: '14px'
+                      fontSize: '15px'
                     }}
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(history.content, purifyConfig)
@@ -451,6 +532,15 @@ const Post = forwardRef((props, ref) => {
           </Timeline>
         )}
       </Modal>
+
+      <CommentModal
+        commentCount={comments}
+        visible={isCommentModalVisible}
+        postId={post.id}
+        onClose={() => setIsCommentModalVisible(false)}
+      />
+
+      <LoginRequiredModal isOpen={showLoginRequiredModal} onClose={handleCloseModal} />
     </div>
   );
 });
