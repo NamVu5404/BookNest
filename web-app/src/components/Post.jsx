@@ -537,6 +537,7 @@ const Post = forwardRef((props, ref) => {
         commentCount={comments}
         visible={isCommentModalVisible}
         postId={post.id}
+        post={post}
         onClose={() => setIsCommentModalVisible(false)}
       />
 

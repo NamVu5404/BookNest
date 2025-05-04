@@ -8,7 +8,7 @@ import {
   SendOutlined,
   UserOutlined
 } from "@ant-design/icons";
-import { Avatar, Button, Dropdown, Input, message, Modal, Spin, Timeline, Typography } from "antd";
+import { Avatar, Button, Dropdown, Input, message, Modal, Spin, Tag, Timeline, Typography } from "antd";
 import DOMPurify from 'dompurify';
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,7 +28,7 @@ import LoginRequiredModal from "./LoginRequiredModal";
 const { Text } = Typography;
 const { confirm } = Modal;
 
-const CommentModal = ({ commentCount, visible, postId, onClose }) => {
+const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
   const [comments, setComments] = useState([]);
   const [loading, setLoading] = useState(false);
   const [loadingComment, setLoadingComment] = useState(false);
@@ -238,7 +238,7 @@ const CommentModal = ({ commentCount, visible, postId, onClose }) => {
 
           setComments(prev => prev.map(comment =>
             comment.id === parentId
-              ? { ...comment, subComment: Math.max(0, comment.subComment - 1) }  
+              ? { ...comment, subComment: Math.max(0, comment.subComment - 1) }
               : comment
           ));
 
@@ -391,8 +391,10 @@ const CommentModal = ({ commentCount, visible, postId, onClose }) => {
                 flexShrink: 0,
                 borderRadius: "50%",
                 objectFit: 'cover',
-                marginRight: 16
+                marginRight: 16,
+                cursor: 'pointer'
               }}
+              onClick={() => navigate(`/profile/${comment.profile.userId}`)}
             />
           ) : (
             <Avatar
@@ -404,8 +406,10 @@ const CommentModal = ({ commentCount, visible, postId, onClose }) => {
                 flexShrink: 0,
                 borderRadius: "50%",
                 objectFit: 'cover',
-                marginRight: 16
+                marginRight: 16,
+                cursor: 'pointer'
               }}
+              onClick={() => navigate(`/profile/${comment.profile.userId}`)}
             />
           )}
           <div style={{ flex: 1 }}>
@@ -458,16 +462,24 @@ const CommentModal = ({ commentCount, visible, postId, onClose }) => {
                     >
                       {comment.profile.fullName}
                     </span>
+                    {post?.profile?.userId === comment.profile.userId && (
+                      <Tag color="blue" style={{ marginLeft: 8, marginRight: 0 }}>Tác giả</Tag>
+                    )}
                     {isSubComment && parentComment && (
                       <>
                         {" "}<CaretRightOutlined />{" "}
                         {parentComment.profile?.userId ? (
-                          <span
-                            onClick={() => navigate(`/profile/${parentComment.profile.userId}`)}
-                            style={{ fontWeight: 500, cursor: 'pointer' }}
-                          >
-                            {parentComment.profile.fullName}
-                          </span>
+                          <>
+                            <span
+                              onClick={() => navigate(`/profile/${parentComment.profile.userId}`)}
+                              style={{ fontWeight: 500, cursor: 'pointer' }}
+                            >
+                              {parentComment.profile.fullName}
+                            </span>
+                            {post?.profile?.userId === parentComment.profile.userId && (
+                              <Tag color="blue" style={{ marginLeft: 8, marginRight: 0 }}>Tác giả</Tag>
+                            )}
+                          </>
                         ) : (
                           <i>Bình luận đã bị xóa</i>
                         )}
@@ -909,7 +921,7 @@ const CommentModal = ({ commentCount, visible, postId, onClose }) => {
       </Modal>
 
       <LoginRequiredModal
-        visible={showLoginRequiredModal}
+        isOpen={showLoginRequiredModal}
         onClose={() => setShowLoginRequiredModal(false)}
       />
     </>
