@@ -10,25 +10,24 @@ import {
   ShareAltOutlined,
   UserOutlined
 } from "@ant-design/icons";
-import { Avatar, Button, Dropdown, message, Modal, Spin, Timeline, Typography } from "antd";
+import { Avatar, Button, Dropdown, message, Modal, Spin, Timeline, Typography, List, Tooltip } from "antd";
 import DOMPurify from 'dompurify';
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import '../assets/css/Post.css';
 import { getUid } from "../services/localStorageService";
 import { deletePost, getPostHistory, updatePost } from "../services/postService";
 import { isAuthenticated } from "../services/authenticationService";
 import LoginRequiredModal from "../components/LoginRequiredModal"
-import { toggleLike } from "../services/likeService";
+import { toggleLike, getAllUserLiked } from "../services/likeService";
 import CommentModal from "./CommentModal";
 
 const { Text } = Typography;
 const { confirm } = Modal;
 
 const Post = forwardRef((props, ref) => {
-  // Safely destructure with default values
   const { post = {} } = props;
   const { profile, elapsedTime, content, likes = 0, comments = 0, liked = false } = post;
 
@@ -51,6 +50,33 @@ const Post = forwardRef((props, ref) => {
   const [isLiked, setIsLiked] = useState(liked);
   const [likeCount, setLikeCount] = useState(likes);
   const [isCommentModalVisible, setIsCommentModalVisible] = useState(false);
+
+  const [isLikesModalVisible, setIsLikesModalVisible] = useState(false);
+  const [likedUsers, setLikedUsers] = useState([]);
+  const [loadingLikes, setLoadingLikes] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const [initialLoad, setInitialLoad] = useState(true);
+
+  const loadMoreLikes = async (page) => {
+    if (!hasMore || loadingLikes) return;
+    
+    try {
+      setLoadingLikes(true);
+      const response = await getAllUserLiked(post.id, page);
+      const newUsers = response.data?.result.data || [];
+      const totalPages = response.data?.result.totalPages || 1;
+      
+      setLikedUsers(prev => page === 1 ? newUsers : [...prev, ...newUsers]);
+      setHasMore(page < totalPages);
+      setCurrentPage(page);
+    } catch (error) {
+      message.error("Không thể tải danh sách người đã thích");
+    } finally {
+      setLoadingLikes(false);
+      setInitialLoad(false);
+    }
+  };
 
   const handleLike = async () => {
     if (!isAuthenticated()) {
@@ -108,17 +134,35 @@ const Post = forwardRef((props, ref) => {
     }
   };
 
+  const handleViewLikes = async () => {
+    if (likeCount > 0) {
+      setIsLikesModalVisible(true);
+      setCurrentPage(1);
+      setHasMore(true);
+      setInitialLoad(true);
+      setLikedUsers([]);
+      loadMoreLikes(1);
+    }
+  };
+
+  const handleModalScroll = (e) => {
+    const { scrollTop, clientHeight, scrollHeight } = e.target;
+    if (scrollHeight - scrollTop <= clientHeight * 1.5 && !loadingLikes && hasMore) {
+      loadMoreLikes(currentPage + 1);
+    }
+  };
+
   const modules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }], // Tiêu đề
-      ['bold', 'italic', 'underline', 'strike'], // Định dạng văn bản
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }], // Danh sách
-      [{ 'align': [] }], // Căn chỉnh
-      ['link', 'image'], // Chèn liên kết và hình ảnh
-      ['clean'], // Xóa định dạng
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'align': [] }],
+      ['link', 'image'],
+      ['clean'],
     ],
     clipboard: {
-      matchVisual: false, // Tắt việc so khớp định dạng khi paste
+      matchVisual: false,
     },
     keyboard: {
       bindings: {
@@ -151,7 +195,6 @@ const Post = forwardRef((props, ref) => {
 
   useEffect(() => {
     if (isEditModalVisible) {
-      // Đảm bảo content được set sau khi modal hiển thị
       setEditedContent(content);
     }
   }, [isEditModalVisible, content]);
@@ -163,16 +206,13 @@ const Post = forwardRef((props, ref) => {
   const handleSave = async () => {
     setUpdateLoading(true);
     try {
-      // Chỉ loại bỏ các thẻ p rỗng
       const cleanContent = editedContent.replace(/<p><br><\/p>/g, '').trim();
 
-      // Kiểm tra nội dung rỗng
       if (!cleanContent) {
         message.error("Nội dung không được để trống!");
         return;
       }
 
-      // Kiểm tra nội dung có thay đổi
       if (cleanContent === content) {
         setIsEditModalVisible(false);
         return;
@@ -180,7 +220,7 @@ const Post = forwardRef((props, ref) => {
 
       await updatePost(post.id, { content: cleanContent });
       console.log("Nội dung đã chỉnh sửa:", editedContent);
-      setIsEditModalVisible(false); // Đóng modal sau khi lưu
+      setIsEditModalVisible(false);
       message.success("Cập nhật bài viết thành công!");
     } catch (error) {
       message.error(error.response?.data?.message || "Cập nhật bài viết thất bại!");
@@ -243,7 +283,6 @@ const Post = forwardRef((props, ref) => {
           marginBottom: 12,
         }}
       >
-        {/* Avatar và thông tin người dùng */}
         <div
           style={{ display: "flex", flexDirection: "row", alignItems: "center", cursor: "pointer" }}
           onClick={() => navigate(`/profile/${profile.userId}`)}
@@ -275,7 +314,6 @@ const Post = forwardRef((props, ref) => {
           </div>
         </div>
 
-        {/* Dropdown menu cho các chức năng */}
         {(profile.userId === getUid() || post.updated) && (
           <Dropdown
             menu={{
@@ -386,7 +424,25 @@ const Post = forwardRef((props, ref) => {
           onClick={handleLike}
           style={{ fontSize: '15px', display: 'flex', alignItems: 'center' }}
         >
-          <span style={{ marginLeft: '4px' }}>{likeCount > 0 ? likeCount : ''}</span>
+          <Tooltip title={likeCount > 0 ? "Xem những người đã thích" : null}>
+            <span 
+              className="like-count"
+              style={{ 
+                marginLeft: '4px', 
+                cursor: likeCount > 0 ? 'pointer' : 'default',
+                color: likeCount > 0 ? '#1677ff' : 'inherit',
+                transition: 'color 0.3s',
+              }} 
+              onClick={(e) => {
+                if (likeCount > 0) {
+                  e.stopPropagation();
+                  handleViewLikes();
+                }
+              }}
+            >
+              {likeCount > 0 ? likeCount : ''}
+            </span>
+          </Tooltip>
         </Button>
 
         <Button
@@ -407,7 +463,6 @@ const Post = forwardRef((props, ref) => {
         </Button>
       </div>
 
-      {/* Modal chỉnh sửa */}
       <Modal
         title={
           <div style={{
@@ -469,7 +524,6 @@ const Post = forwardRef((props, ref) => {
         )}
       </Modal>
 
-      {/* Modal lịch sử chỉnh sửa */}
       <Modal
         title={
           <div style={{
@@ -483,7 +537,7 @@ const Post = forwardRef((props, ref) => {
         open={isHistoryModalVisible}
         onCancel={() => {
           setIsHistoryModalVisible(false);
-          setPostHistory([]); // Reset history khi đóng modal
+          setPostHistory([]);
         }}
         footer={null}
         width={800}
@@ -531,6 +585,113 @@ const Post = forwardRef((props, ref) => {
             ))}
           </Timeline>
         )}
+      </Modal>
+
+      <Modal
+        title={
+          <div style={{
+            borderBottom: '1px solid #f0f0f0',
+            fontSize: '18px',
+            fontWeight: 600,
+            padding: '16px 24px',
+            marginLeft: -24,
+            marginRight: -24,
+            marginTop: -16
+          }}>
+            Những người đã thích
+          </div>
+        }
+        open={isLikesModalVisible}
+        onCancel={() => {
+          setIsLikesModalVisible(false);
+          setLikedUsers([]);
+          setCurrentPage(1);
+          setHasMore(true);
+        }}
+        footer={null}
+        width={400}
+        centered
+        modalRender={(modal) => modal}
+      >
+        <div 
+          onScroll={handleModalScroll} 
+          style={{ 
+            maxHeight: '60vh', 
+            overflowY: 'auto',
+            marginRight: -24,
+            marginLeft: -24,
+            padding: '0 24px'
+          }}
+        >
+          <List
+            itemLayout="horizontal"
+            dataSource={likedUsers}
+            renderItem={(user) => (
+              <List.Item style={{ padding: '12px 0' }}>
+                <List.Item.Meta
+                  avatar={
+                    <div 
+                      onClick={() => {
+                        navigate(`/profile/${user.userId}`);
+                        setIsLikesModalVisible(false);
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {user.avatar ? (
+                        <Avatar 
+                          className="liked-user-avatar"
+                          src={user.avatar} 
+                          style={{ 
+                            width: 40, 
+                            height: 40,
+                            transition: 'transform 0.3s',
+                          }} 
+                        />
+                      ) : (
+                        <Avatar 
+                          className="liked-user-avatar"
+                          icon={<UserOutlined />} 
+                          style={{ 
+                            width: 40, 
+                            height: 40,
+                            transition: 'transform 0.3s',
+                          }} 
+                        />
+                      )}
+                    </div>
+                  }
+                  title={
+                    <Link
+                      to={`/profile/${user.userId}`}
+                      className="liked-user-name"
+                      style={{ 
+                        color: 'inherit',
+                        fontSize: '15px',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {user.fullName}
+                    </Link>
+                  }
+                />
+              </List.Item>
+            )}
+            locale={{
+              emptyText: initialLoad ? 
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                  <Spin />
+                </div> : 
+                <div style={{ padding: '20px 0', textAlign: 'center' }}>
+                  Chưa có người thích bài viết này
+                </div>
+            }}
+          />
+          {loadingLikes && hasMore && !initialLoad && (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <Spin />
+            </div>
+          )}
+        </div>
       </Modal>
 
       <CommentModal

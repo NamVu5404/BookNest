@@ -57,3 +57,17 @@
 .post-content {
     transition: max-height 0.3s ease-out;
 }
+
+/* Hover effects cho danh sách người like */
+.liked-user-avatar:hover {
+  transform: scale(1.05);
+}
+
+.liked-user-name:hover {
+  color: #1677ff !important;
+  text-decoration: underline;
+}
+
+.like-count:hover {
+  text-decoration: underline;
+}

@@ -9,3 +9,9 @@ export const toggleLike = async (postId) => {
     },
   });
 };
+
+export const getAllUserLiked = async (postId, page = 1, size = 10) => {
+  return await httpClient.get(`/posts/${postId}/likes`, {
+    params: { page, size },
+  });
+};
