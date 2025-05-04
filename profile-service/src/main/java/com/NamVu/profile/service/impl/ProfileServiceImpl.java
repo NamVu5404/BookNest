@@ -10,10 +10,10 @@ import com.NamVu.profile.dto.response.FileResponse;
 import com.NamVu.profile.dto.response.PrivateProfileResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
 import com.NamVu.profile.entity.Profile;
-import com.NamVu.profile.enums.FriendStatus;
 import com.NamVu.profile.httpclient.FileClient;
 import com.NamVu.profile.mapper.ProfileMapper;
 import com.NamVu.profile.repository.ProfileRepository;
+import com.NamVu.profile.service.FriendStatusService;
 import com.NamVu.profile.service.ProfileService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +37,7 @@ public class ProfileServiceImpl implements ProfileService {
     ProfileRepository profileRepository;
     ProfileMapper profileMapper;
     FileClient fileClient;
+    FriendStatusService friendStatusService;
 
     @Override
     public PrivateProfileResponse create(ProfileCreateRequest request) {
@@ -59,7 +60,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public PublicProfileResponse getPublicProfileByUserId(String userId) {
-        return mapToPublicProfileResponse(getProfile(userId));
+        return friendStatusService.mapToPublicProfileResponse(getProfile(userId));
     }
 
     @Override
@@ -118,32 +119,5 @@ public class ProfileServiceImpl implements ProfileService {
     private Profile getProfile(String userId) {
         return profileRepository.findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
-    }
-
-    private PublicProfileResponse mapToPublicProfileResponse(Profile profile) {
-        var response = profileMapper.toPublicProfileResponse(profile);
-
-        FriendStatus status = FriendStatus.NONE;
-
-        try {
-            String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
-            Profile currentProfile = getProfile(currentUserId);
-
-            if (currentProfile.getFriends().stream()
-                    .anyMatch(request -> request.getUserId().equals(profile.getUserId()))) {
-                status = FriendStatus.FRIEND;
-            } else if (currentProfile.getSentRequests().stream()
-                    .anyMatch(request -> request.getReceiver().getUserId().equals(profile.getUserId()))) {
-                status = FriendStatus.SENT;
-            } else if (currentProfile.getReceivedRequests().stream()
-                    .anyMatch(request -> request.getSenderId().equals(profile.getUserId()))) {
-                status = FriendStatus.RECEIVED;
-            }
-        } catch (Exception ignored) {
-        }
-
-        response.setStatus(status);
-
-        return response;
     }
 }

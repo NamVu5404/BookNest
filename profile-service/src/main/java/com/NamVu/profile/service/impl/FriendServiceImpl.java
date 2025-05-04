@@ -12,6 +12,7 @@ import com.NamVu.profile.enums.FriendStatus;
 import com.NamVu.profile.mapper.ProfileMapper;
 import com.NamVu.profile.repository.ProfileRepository;
 import com.NamVu.profile.service.FriendService;
+import com.NamVu.profile.service.FriendStatusService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 public class FriendServiceImpl implements FriendService {
     ProfileRepository profileRepository;
     ProfileMapper profileMapper;
+    FriendStatusService friendStatusService;
 
     @Override
     @Transactional
@@ -142,11 +144,7 @@ public class FriendServiceImpl implements FriendService {
         List<Profile> profiles = profileRepository.getAllFriendsAfterLastUserId(userId, lastUserId, limit);
 
         List<PublicProfileResponse> responses = profiles.stream()
-                .map(profile -> {
-                    var response = profileMapper.toPublicProfileResponse(profile);
-                    response.setStatus(FriendStatus.FRIEND);
-                    return response;
-                })
+                .map(friendStatusService::mapToPublicProfileResponse)
                 .toList();
 
         return LimitedResponse.<PublicProfileResponse>builder()
