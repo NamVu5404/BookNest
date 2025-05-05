@@ -6,14 +6,17 @@ import {
   ExclamationCircleOutlined,
   HistoryOutlined,
   SendOutlined,
-  UserOutlined
+  UserOutlined,
+  HeartOutlined,
+  HeartFilled
 } from "@ant-design/icons";
-import { Avatar, Button, Dropdown, Input, message, Modal, Spin, Tag, Timeline, Typography } from "antd";
+import { Avatar, Button, Dropdown, Input, List, message, Modal, Spin, Tag, Timeline, Tooltip, Typography } from "antd";
 import DOMPurify from 'dompurify';
 import React, { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserDetails } from "../contexts/UserContext";
 import { isAuthenticated } from "../services/authenticationService";
+import { toggleLike, getAllUserLiked } from "../services/likeCommentService";
 import {
   createComment as apiCreateComment,
   deleteComment as apiDeleteComment,
@@ -51,6 +54,15 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
   const [loadingAction, setLoadingAction] = useState({});
   const [loadingDelete, setLoadingDelete] = useState({});
   const [loadingEdit, setLoadingEdit] = useState({});
+  const [likedComments, setLikedComments] = useState({});
+  const [likeCounts, setLikeCounts] = useState({});
+  const [currentLikeModalComment, setCurrentLikeModalComment] = useState(null);
+  const [isLikesModalVisible, setIsLikesModalVisible] = useState(false);
+  const [likedUsers, setLikedUsers] = useState([]);
+  const [loadingLikes, setLoadingLikes] = useState(false);
+  const [currentLikePage, setCurrentLikePage] = useState(1);
+  const [hasMoreLikes, setHasMoreLikes] = useState(true);
+  const [initialLoadLikes, setInitialLoadLikes] = useState(true);
   const { userDetails } = useUserDetails();
 
   const commentInputRef = useRef(null);
@@ -66,6 +78,23 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
         setComments(prev => page === 1 ? newComments : [...prev, ...newComments]);
         setPage(response.data.result.currentPage);
         setHasMore(response.data.result.currentPage < response.data.result.totalPages);
+
+        // Khởi tạo trạng thái like và số lượt like cho comments mới
+        const newLikedComments = {};
+        const newLikeCounts = {};
+        newComments.forEach(comment => {
+          newLikedComments[comment.id] = comment.liked;
+          newLikeCounts[comment.id] = comment.likes;
+        });
+
+        setLikedComments(prev => ({
+          ...prev,
+          ...newLikedComments
+        }));
+        setLikeCounts(prev => ({
+          ...prev,
+          ...newLikeCounts
+        }));
       }
     } catch (error) {
       console.error("Lỗi khi tải comments", error);
@@ -97,6 +126,23 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
         setHasMoreSubComments(prev => ({
           ...prev,
           [parentId]: hasMore
+        }));
+
+        // Khởi tạo trạng thái like và số lượt like cho sub-comments
+        const newLikedComments = {};
+        const newLikeCounts = {};
+        subCommentData.forEach(comment => {
+          newLikedComments[comment.id] = comment.liked;
+          newLikeCounts[comment.id] = comment.likes;
+        });
+
+        setLikedComments(prev => ({
+          ...prev,
+          ...newLikedComments
+        }));
+        setLikeCounts(prev => ({
+          ...prev,
+          ...newLikeCounts
         }));
       }
     } catch (error) {
@@ -273,6 +319,43 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
     }
   };
 
+  const handleLikeComment = async (commentId) => {
+    if (!isAuthenticated()) {
+      setShowLoginRequiredModal(true);
+      return;
+    }
+
+    try {
+      const currentLiked = likedComments[commentId];
+      const currentLikes = likeCounts[commentId] || 0;
+
+      setLikedComments(prev => ({
+        ...prev,
+        [commentId]: !currentLiked
+      }));
+      setLikeCounts(prev => ({
+        ...prev,
+        [commentId]: currentLikes + (currentLiked ? -1 : 1)
+      }));
+
+      await toggleLike(commentId);
+    } catch (error) {
+      // Rollback nếu có lỗi
+      const currentLiked = likedComments[commentId];
+      const currentLikes = likeCounts[commentId] || 0;
+
+      setLikedComments(prev => ({
+        ...prev,
+        [commentId]: !currentLiked
+      }));
+      setLikeCounts(prev => ({
+        ...prev,
+        [commentId]: currentLikes + (currentLiked ? 1 : -1)
+      }));
+      message.error(error.response?.data?.message || "Lỗi khi thích bình luận!");
+    }
+  };
+
   const handleComment = () => {
     if (!commentContent.trim()) return;
     createComment(postId, commentContent.trim());
@@ -354,6 +437,45 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
     getCommentHistory(commentId);
   };
 
+  const loadMoreLikes = async (commentId, page) => {
+    if (!hasMoreLikes || loadingLikes) return;
+
+    try {
+      setLoadingLikes(true);
+      const response = await getAllUserLiked(commentId, page);
+      const newUsers = response.data?.result.data || [];
+      const totalPages = response.data?.result.totalPages || 1;
+
+      setLikedUsers(prev => page === 1 ? newUsers : [...prev, ...newUsers]);
+      setHasMoreLikes(page < totalPages);
+      setCurrentLikePage(page);
+    } catch (error) {
+      message.error("Không thể tải danh sách người đã thích");
+    } finally {
+      setLoadingLikes(false);
+      setInitialLoadLikes(false);
+    }
+  };
+
+  const handleViewLikes = async (commentId) => {
+    if (likeCounts[commentId] > 0) {
+      setCurrentLikeModalComment(commentId);
+      setIsLikesModalVisible(true);
+      setCurrentLikePage(1);
+      setHasMoreLikes(true);
+      setInitialLoadLikes(true);
+      setLikedUsers([]);
+      loadMoreLikes(commentId, 1);
+    }
+  };
+
+  const handleLikesModalScroll = (e) => {
+    const { scrollTop, clientHeight, scrollHeight } = e.target;
+    if (scrollHeight - scrollTop <= clientHeight * 1.5 && !loadingLikes && hasMoreLikes && currentLikeModalComment) {
+      loadMoreLikes(currentLikeModalComment, currentLikePage + 1);
+    }
+  };
+
   const purifyConfig = {
     ALLOWED_TAGS: [
       'p', 'br', 'strong', 'em', 'u', 'strike',
@@ -369,6 +491,8 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
       setTotalComments(commentCount);
       setComments([]);
       setPage(1);
+      setLikedComments({});
+      setLikeCounts({});
       fetchComments(postId, 1);
       setTimeout(() => {
         if (commentInputRef.current) {
@@ -451,7 +575,7 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
             ) : (
               <div>
                 <div style={{
-                  backgroundColor: '#f5f5f5',
+                  backgroundColor: '#f2f4f7',
                   borderRadius: '18px',
                   padding: '8px 12px'
                 }}>
@@ -494,10 +618,45 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
                   />
                 </div>
 
-                <div style={{ display: 'flex', marginTop: '4px', fontSize: '13px' }}>
-                  <Text type="secondary" style={{ marginRight: '8px', fontSize: 13 }}>
+                <div style={{ display: 'flex', marginTop: '4px', fontSize: '13px', alignItems: 'center' }}>
+                  <Text type="secondary" style={{ marginRight: '12px', fontSize: 13 }}>
                     {comment.elapsedTime}
                   </Text>
+                  <Button
+                    type="link"
+                    size="small"
+                    onClick={() => handleLikeComment(comment.id)}
+                    style={{
+                      padding: '0',
+                      height: 'auto',
+                      fontSize: '13px',
+                      color: likedComments[comment.id] ? '#ff4d4f' : 'rgba(0, 0, 0, 0.45)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    {likedComments[comment.id] ? <HeartFilled /> : <HeartOutlined />}
+                  </Button>
+
+                  {likeCounts[comment.id] > 0 && (
+                    <Button
+                      type="link"
+                      size="small"
+                      onClick={() => handleViewLikes(comment.id)}
+                      style={{
+                        padding: '0 0 0 4px',
+                        height: 'auto',
+                        fontSize: '13px',
+                        color: '#1677ff'
+                      }}
+                    >
+                      <Tooltip title={"Xem những người đã thích"}>
+                        {likeCounts[comment.id]}
+                      </Tooltip>
+                    </Button>
+                  )}
+
                   <Button
                     type="link"
                     size="small"
@@ -506,7 +665,8 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
                       padding: '0',
                       height: 'auto',
                       fontSize: '13px',
-                      color: 'rgba(0, 0, 0, 0.45)'
+                      color: 'rgba(0, 0, 0, 0.45)',
+                      marginLeft: '16px'
                     }}
                   >
                     Phản hồi
@@ -694,7 +854,7 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
       ) : (
         (comment.subComment > 0 && <div>
           <div style={{
-            backgroundColor: '#f5f5f5',
+            backgroundColor: '#f2f4f7',
             borderRadius: '18px',
             padding: '8px 12px',
             width: "100%",
@@ -767,6 +927,7 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
         centered
         maskClosable={true}
         styles={{
+
           body: {
             maxHeight: 'calc(100vh - 200px)',
             display: 'flex',
@@ -899,7 +1060,7 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
                   <div
                     style={{
                       padding: '8px 12px',
-                      backgroundColor: index === 0 ? '#f6ffed' : '#f5f5f5',
+                      backgroundColor: '#f2f4f7',
                       borderRadius: '8px',
                       marginBottom: '8px'
                     }}
@@ -918,6 +1079,94 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
             }))}
           />
         )}
+      </Modal>
+
+      <Modal
+        title="Danh sách người đã thích"
+        open={isLikesModalVisible}
+        onCancel={() => {
+          setIsLikesModalVisible(false);
+          setLikedUsers([]);
+          setCurrentLikePage(1);
+          setHasMoreLikes(true);
+        }}
+        footer={null}
+        width={400}
+        centered
+      >
+        <div
+          onScroll={handleLikesModalScroll}
+          style={{
+            maxHeight: '60vh',
+            overflowY: 'auto'
+          }}
+        >
+          <List
+            itemLayout="horizontal"
+            dataSource={likedUsers}
+            renderItem={(user) => (
+              <List.Item style={{ padding: '12px 0' }}>
+                <List.Item.Meta
+                  avatar={
+                    <div
+                      onClick={() => {
+                        navigate(`/profile/${user.userId}`);
+                        setIsLikesModalVisible(false);
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {user.avatar ? (
+                        <Avatar
+                          src={user.avatar}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            transition: 'transform 0.3s',
+                          }}
+                        />
+                      ) : (
+                        <Avatar
+                          icon={<UserOutlined />}
+                          style={{
+                            width: 40,
+                            height: 40,
+                            transition: 'transform 0.3s',
+                          }}
+                        />
+                      )}
+                    </div>
+                  }
+                  title={
+                    <Link
+                      to={`/profile/${user.userId}`}
+                      style={{
+                        color: 'inherit',
+                        fontSize: '15px',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {user.fullName}
+                    </Link>
+                  }
+                />
+              </List.Item>
+            )}
+            locale={{
+              emptyText: initialLoadLikes ?
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                  <Spin />
+                </div> :
+                <div style={{ padding: '20px 0', textAlign: 'center' }}>
+                  Chưa có người thích bình luận này
+                </div>
+            }}
+          />
+          {loadingLikes && hasMoreLikes && !initialLoadLikes && (
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <Spin />
+            </div>
+          )}
+        </div>
       </Modal>
 
       <LoginRequiredModal

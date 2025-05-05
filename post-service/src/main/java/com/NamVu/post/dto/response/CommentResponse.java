@@ -18,5 +18,7 @@ public class CommentResponse {
     int subComment;
     String elapsedTime;
     PublicProfileResponse profile;
+    int likes;
+    boolean liked;
     boolean updated;
 }

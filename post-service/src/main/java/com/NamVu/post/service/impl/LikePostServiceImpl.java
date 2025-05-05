@@ -2,10 +2,10 @@ package com.NamVu.post.service.impl;
 
 import com.NamVu.common.dto.PageResponse;
 import com.NamVu.post.dto.response.PublicProfileResponse;
-import com.NamVu.post.entity.Like;
+import com.NamVu.post.entity.LikePost;
 import com.NamVu.post.httpclient.ProfileClient;
-import com.NamVu.post.repository.LikeRepository;
-import com.NamVu.post.service.LikeService;
+import com.NamVu.post.repository.LikePostRepository;
+import com.NamVu.post.service.LikePostService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,37 +25,37 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class LikeServiceImpl implements LikeService {
-    LikeRepository likeRepository;
+public class LikePostServiceImpl implements LikePostService {
+    LikePostRepository likePostRepository;
     ProfileClient profileClient;
 
     @Override
     public void toggleLike(String postId) {
         String userId = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Like existingLike = likeRepository.findByPostIdAndUserId(postId, userId).orElse(null);
+        LikePost existingLikePost = likePostRepository.findByPostIdAndUserId(postId, userId).orElse(null);
 
-        if (existingLike == null) {
+        if (existingLikePost == null) {
             // like
-            Like like = Like.builder()
+            LikePost likePost = LikePost.builder()
                     .postId(postId)
                     .userId(userId)
                     .build();
 
-            likeRepository.save(like);
+            likePostRepository.save(likePost);
         } else {
             // unlike
-            likeRepository.delete(existingLike);
+            likePostRepository.delete(existingLikePost);
         }
     }
 
     @Override
     public PageResponse<PublicProfileResponse> getAllUserLiked(String postId, Pageable pageable) {
-        Page<Like> likes = likeRepository.findAllByPostId(postId, pageable);
+        Page<LikePost> likes = likePostRepository.findAllByPostId(postId, pageable);
 
         // Lấy userIds liked post
         Set<String> userIds = likes.getContent().stream()
-                .map(Like::getUserId)
+                .map(LikePost::getUserId)
                 .collect(Collectors.toSet());
 
         // Lấy profile dựa vào Set userIds

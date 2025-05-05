@@ -3,7 +3,7 @@ package com.NamVu.post.controller;
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.common.dto.PageResponse;
 import com.NamVu.post.dto.response.PublicProfileResponse;
-import com.NamVu.post.service.LikeService;
+import com.NamVu.post.service.LikeCommentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -13,29 +13,29 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/posts")
+@RequestMapping("/posts/comments")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class LikeController {
-    LikeService likeService;
+public class LikeCommentController {
+    LikeCommentService likeCommentService;
 
-    @PostMapping("/{postId}/likes/toggle")
-    public ApiResponse<?> toggleLike(@PathVariable String postId) {
-        likeService.toggleLike(postId);
+    @PostMapping("/{commentId}/likes/toggle")
+    public ApiResponse<?> toggleLike(@PathVariable String commentId) {
+        likeCommentService.toggleLike(commentId);
         return ApiResponse.builder().build();
     }
 
-    @GetMapping("/{postId}/likes")
+    @GetMapping("/{commentId}/likes")
     public ApiResponse<PageResponse<PublicProfileResponse>> getAllUserLiked(
-            @PathVariable String postId,
+            @PathVariable String commentId,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "20") int size
     ) {
         Pageable pageable = PageRequest.of(page - 1, size);
 
         return ApiResponse.<PageResponse<PublicProfileResponse>>builder()
-                .result(likeService.getAllUserLiked(postId, pageable))
+                .result(likeCommentService.getAllUserLiked(commentId, pageable))
                 .build();
     }
 }

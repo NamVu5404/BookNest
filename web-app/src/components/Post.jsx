@@ -21,7 +21,7 @@ import { getUid } from "../services/localStorageService";
 import { deletePost, getPostHistory, updatePost } from "../services/postService";
 import { isAuthenticated } from "../services/authenticationService";
 import LoginRequiredModal from "../components/LoginRequiredModal"
-import { toggleLike, getAllUserLiked } from "../services/likeService";
+import { toggleLike, getAllUserLiked } from "../services/likePostService";
 import CommentModal from "./CommentModal";
 
 const { Text } = Typography;
@@ -426,7 +426,7 @@ const Post = forwardRef((props, ref) => {
         >
           <Tooltip title={likeCount > 0 ? "Xem những người đã thích" : null}>
             <span 
-              className="like-count"
+              className="likePost-count"
               style={{ 
                 marginLeft: '4px', 
                 cursor: likeCount > 0 ? 'pointer' : 'default',

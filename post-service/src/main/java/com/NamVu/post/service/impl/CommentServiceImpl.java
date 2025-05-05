@@ -10,10 +10,12 @@ import com.NamVu.post.dto.response.CommentResponse;
 import com.NamVu.post.dto.response.PublicProfileResponse;
 import com.NamVu.post.entity.Comment;
 import com.NamVu.post.entity.CommentEditHistory;
+import com.NamVu.post.entity.LikeComment;
 import com.NamVu.post.httpclient.ProfileClient;
 import com.NamVu.post.mapper.CommentMapper;
 import com.NamVu.post.repository.CommentEditHistoryRepository;
 import com.NamVu.post.repository.CommentRepository;
+import com.NamVu.post.repository.LikeCommentRepository;
 import com.NamVu.post.service.CommentService;
 import com.NamVu.post.service.DateTimeFormatter;
 import lombok.AccessLevel;
@@ -22,10 +24,12 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +45,7 @@ public class CommentServiceImpl implements CommentService {
     ProfileClient profileClient;
     CommentMapper commentMapper;
     DateTimeFormatter dateTimeFormatter;
+    LikeCommentRepository likeCommentRepository;
 
     @Override
     public CommentResponse createComment(String postId, CommentRequest request) {
@@ -172,8 +177,33 @@ public class CommentServiceImpl implements CommentService {
 
         Map<String, PublicProfileResponse> profiles = profileClient.getByUserIds(userIds).getResult();
 
+        // Tìm comment đã liked của user hiện tại
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        List<String> likedCommentIds = new ArrayList<>();
+
+        if (authentication != null) {
+            List<String> commentIds = comments.getContent()
+                    .stream()
+                    .map(Comment::getId)
+                    .toList();
+
+            String currentUserId = authentication.getName();
+
+            likedCommentIds = likeCommentRepository.findByUserIdAndCommentIdIn(currentUserId, commentIds)
+                    .stream()
+                    .map(LikeComment::getCommentId)
+                    .toList();
+        }
+
+        final List<String> finalLikedCommentIds = likedCommentIds;
+
         return comments.stream()
-                .map(comment -> mapToResponse(comment, profiles))
+                .map(comment -> {
+                    CommentResponse commentResponse = mapToResponse(comment, profiles);
+                    commentResponse.setLiked(finalLikedCommentIds.contains(commentResponse.getId()));
+                    return commentResponse;
+                })
                 .toList();
     }
 
@@ -187,6 +217,7 @@ public class CommentServiceImpl implements CommentService {
         response.setSubComment(commentRepository.countByParentId(comment.getId()));
         response.setElapsedTime(dateTimeFormatter.format(comment.getCreatedDate()));
         response.setUpdated(!comment.getCreatedDate().equals(comment.getModifiedDate()));
+        response.setLikes(likeCommentRepository.countByCommentId(comment.getId()));
 
         // Gán Profile từ map đã có
         PublicProfileResponse profile = profiles.get(comment.getUserId());

@@ -12,11 +12,11 @@ import org.springframework.data.mongodb.core.mapping.MongoId;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Like {
+public class LikeComment {
     @MongoId
     String id;
 
-    String postId;
+    String commentId;
 
     String userId;
 }

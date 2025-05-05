@@ -8,13 +8,13 @@ import com.NamVu.post.dto.request.PostRequest;
 import com.NamVu.post.dto.response.PostEditHistoryResponse;
 import com.NamVu.post.dto.response.PostResponse;
 import com.NamVu.post.dto.response.PublicProfileResponse;
-import com.NamVu.post.entity.Like;
+import com.NamVu.post.entity.LikePost;
 import com.NamVu.post.entity.Post;
 import com.NamVu.post.entity.PostEditHistory;
 import com.NamVu.post.httpclient.ProfileClient;
 import com.NamVu.post.mapper.PostMapper;
 import com.NamVu.post.repository.CommentRepository;
-import com.NamVu.post.repository.LikeRepository;
+import com.NamVu.post.repository.LikePostRepository;
 import com.NamVu.post.repository.PostEditHistoryRepository;
 import com.NamVu.post.repository.PostRepository;
 import com.NamVu.post.service.DateTimeFormatter;
@@ -46,7 +46,7 @@ public class PostServiceImpl implements PostService {
     DateTimeFormatter dateTimeFormatter;
     ProfileClient profileClient;
     PostEditHistoryRepository postEditHistoryRepository;
-    LikeRepository likeRepository;
+    LikePostRepository likePostRepository;
     CommentRepository commentRepository;
 
     @Override
@@ -183,9 +183,9 @@ public class PostServiceImpl implements PostService {
 
             String currentUserId = authentication.getName();
 
-            likedPostIds = likeRepository.findByUserIdAndPostIdIn(currentUserId, postIds)
+            likedPostIds = likePostRepository.findByUserIdAndPostIdIn(currentUserId, postIds)
                     .stream()
-                    .map(Like::getPostId)
+                    .map(LikePost::getPostId)
                     .toList();
         }
 
@@ -205,7 +205,7 @@ public class PostServiceImpl implements PostService {
 
         response.setElapsedTime(dateTimeFormatter.format(post.getCreatedDate()));
         response.setUpdated(!post.getCreatedDate().equals(post.getModifiedDate()));
-        response.setLikes(likeRepository.countByPostId(post.getId()));
+        response.setLikes(likePostRepository.countByPostId(post.getId()));
         response.setComments(commentRepository.countByPostIdAndIsActive(post.getId(), StatusConstant.ACTIVE));
 
         // Gán profile từ map đã có
