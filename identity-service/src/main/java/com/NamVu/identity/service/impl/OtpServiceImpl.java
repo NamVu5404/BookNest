@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 @Service
@@ -84,13 +86,17 @@ public class OtpServiceImpl implements OtpService {
     }
 
     private void sendOtpCode(String email, String otpCode) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("otpCode", otpCode);
+
         NotificationEvent event = NotificationEvent.builder()
                 .channel("EMAIL")
                 .recipient(email)
-                .subject("Verify your email")
-                .content("Your OTP code is: " + otpCode)
+                .subject("Verify Your Email")
+                .templateCode("verify-email")
+                .params(params)
                 .build();
 
-        kafkaTemplate.send(KafkaConstant.NOTIFICATION_SEND_OTP, event);
+        kafkaTemplate.send(KafkaConstant.EMAIL_EVENTS, event);
     }
 }

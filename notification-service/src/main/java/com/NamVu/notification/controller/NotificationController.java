@@ -1,9 +1,11 @@
 package com.NamVu.notification.controller;
 
 import com.NamVu.common.constant.KafkaConstant;
+import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.event.dto.NotificationEvent;
 import com.NamVu.notification.dto.request.Recipient;
 import com.NamVu.notification.dto.request.SendEmailRequest;
+import com.NamVu.notification.dto.response.EmailResponse;
 import com.NamVu.notification.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -12,36 +14,43 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequestMapping("/emails")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class NotificationController {
     EmailService emailService;
+    TemplateEngine templateEngine;
 
-    @KafkaListener(topics = KafkaConstant.NOTIFICATION_SEND_OTP, groupId = KafkaConstant.OTP_GROUP)
-    public void sendOtp(NotificationEvent message) {
-        log.info("Received OTP: {}", message);
-        sendEmail(message);
-    }
-
-    @KafkaListener(topics = KafkaConstant.USER_REGISTRATION_SUCCESS, groupId = KafkaConstant.REGISTRATION_GROUP)
-    public void listen(NotificationEvent message) {
+    @KafkaListener(topics = KafkaConstant.EMAIL_EVENTS, groupId = KafkaConstant.EMAIL_SERVICE)
+    public ApiResponse<EmailResponse> listenEmailEvents(NotificationEvent message) {
         log.info("Received email: {}", message);
-        sendEmail(message);
+        return ApiResponse.<EmailResponse>builder()
+                .result(sendEmail(message))
+                .build();
     }
 
-    private void sendEmail(NotificationEvent message) {
-        emailService.sendEmail(SendEmailRequest.builder()
+    private EmailResponse sendEmail(NotificationEvent message) {
+        String htmlContent = renderTemplate(message.getTemplateCode(), message.getParams());
+
+        return emailService.sendEmail(SendEmailRequest.builder()
                 .to(List.of(Recipient.builder()
                         .email(message.getRecipient())
                         .build()))
                 .subject(message.getSubject())
-                .htmlContent(message.getContent())
+                .htmlContent(htmlContent)
                 .build());
+    }
+
+    private String renderTemplate(String templateCode, Map<String, Object> params) {
+        Context context = new Context();
+        context.setVariables(params);
+        return templateEngine.process(templateCode, context);
     }
 }

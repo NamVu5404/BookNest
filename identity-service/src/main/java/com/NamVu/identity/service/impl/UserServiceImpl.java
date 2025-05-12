@@ -32,7 +32,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -132,13 +134,17 @@ public class UserServiceImpl implements UserService {
     }
 
     private void sendWelcomeEmail(UserCreateRequest request) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("fullName", request.getFullName());
+
         NotificationEvent event = NotificationEvent.builder()
                 .channel("EMAIL")
-                .recipient(request.getEmail())
                 .subject("Welcome to BookNest!")
-                .content("Hello " + request.getFullName())
+                .recipient(request.getEmail())
+                .templateCode("welcome-email")
+                .params(params)
                 .build();
 
-        kafkaTemplate.send(KafkaConstant.USER_REGISTRATION_SUCCESS, event);
+        kafkaTemplate.send(KafkaConstant.EMAIL_EVENTS, event);
     }
 }
