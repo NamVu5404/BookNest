@@ -5,19 +5,21 @@ import com.NamVu.common.exception.ErrorCode;
 import com.NamVu.notification.dto.request.EmailRequest;
 import com.NamVu.notification.dto.request.SendEmailRequest;
 import com.NamVu.notification.dto.request.Sender;
-import com.NamVu.notification.dto.response.EmailResponse;
 import com.NamVu.notification.httpclient.EmailClient;
 import com.NamVu.notification.service.EmailService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class EmailServiceImpl implements EmailService {
     EmailClient emailClient;
 
@@ -34,7 +36,8 @@ public class EmailServiceImpl implements EmailService {
     String SENDER_NAME;
 
     @Override
-    public EmailResponse sendEmail(SendEmailRequest request) {
+    @Async
+    public void sendEmail(SendEmailRequest request) {
         Sender sender = Sender.builder()
                 .email(SENDER_EMAIL)
                 .name(SENDER_NAME)
@@ -48,8 +51,9 @@ public class EmailServiceImpl implements EmailService {
                 .build();
 
         try {
-            return emailClient.sendEmail(API_KEY, emailRequest);
+            emailClient.sendEmail(API_KEY, emailRequest);
         } catch (Exception e) {
+            log.error("Failed to send email: {}", e.getMessage(), e);
             throw new AppException(ErrorCode.CAN_NOT_SEND_EMAIL);
         }
     }

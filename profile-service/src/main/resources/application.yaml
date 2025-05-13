@@ -11,6 +11,16 @@ spring:
     authentication:
       username: neo4j
       password: 12345678
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all # 0: ko đợi kafka response; 1: leader write thành công, không đợi lưu vào followers; -1/all: ghi thành công vào leader và replication
+      retries: 1
+    properties:
+      enable.idempotence: true # tránh trùng lặp message
+      max.in.flight.requests.per.connection: 5 # Tối đa 5 message gửi cùng lúc mà chưa xác nhận (<= 5 để đúng với idempotence: true)
 
 app:
   services:

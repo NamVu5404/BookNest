@@ -1,8 +1,10 @@
 package com.NamVu.profile.service.impl;
 
+import com.NamVu.common.constant.KafkaConstant;
 import com.NamVu.common.constant.StatusConstant;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
+import com.NamVu.event.dto.NotificationEvent;
 import com.NamVu.profile.dto.request.FriendCreateRequest;
 import com.NamVu.profile.dto.response.LimitedResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
@@ -17,12 +19,14 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,6 +38,7 @@ public class FriendServiceImpl implements FriendService {
     ProfileRepository profileRepository;
     ProfileMapper profileMapper;
     FriendStatusService friendStatusService;
+    KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     @Transactional
@@ -71,6 +76,18 @@ public class FriendServiceImpl implements FriendService {
         // Chỉ cần save start node, tự động map relationship và target node
         sender.getSentRequests().add(friendRequest);
         profileRepository.save(sender);
+
+        // publish notification
+        NotificationEvent event = NotificationEvent.builder()
+                .channel("IN_APP")
+                .sender(senderId)
+                .recipient(receiverId)
+                .templateCode("friend-request")
+                .params(Map.of("senderName", sender.getFullName()))
+                .subject("Bạn có lời mời kết bạn mới")
+                .build();
+
+        kafkaTemplate.send(KafkaConstant.NOTIFICATION_EVENTS, event);
     }
 
     @Override
@@ -90,6 +107,18 @@ public class FriendServiceImpl implements FriendService {
 
         // Xóa FRIEND_REQUEST
         profileRepository.deleteFriendRequest(senderId, receiverId);
+
+        // publish notification
+        NotificationEvent event = NotificationEvent.builder()
+                .channel("IN_APP")
+                .sender(senderId)
+                .recipient(receiverId)
+                .templateCode("accept-friend-request")
+                .params(Map.of("senderName", getProfile(receiverId).getFullName()))
+                .subject("Chấp nhận lời mời kết bạn")
+                .build();
+
+        kafkaTemplate.send(KafkaConstant.NOTIFICATION_EVENTS, event);
     }
 
     @Override
