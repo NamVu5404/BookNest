@@ -21,8 +21,8 @@ public class LikeCommentController {
     LikeCommentService likeCommentService;
 
     @PostMapping("/{commentId}/likes/toggle")
-    public ApiResponse<?> toggleLike(@PathVariable String commentId) {
-        likeCommentService.toggleLike(commentId);
+    public ApiResponse<?> toggleLike(@PathVariable String commentId, @RequestParam String ownerId) {
+        likeCommentService.toggleLike(commentId, ownerId);
         return ApiResponse.builder().build();
     }
 

@@ -2,8 +2,8 @@ import httpClient from "../configurations/httpClient";
 import { validateInput } from "../utils/ValidateInputUtil";
 
 // 1. Tạo comment mới cho một bài post
-export const createComment = async (postId, data) => {
-  return await httpClient.post(`/posts/${postId}/comments`, validateInput(data));
+export const createComment = async (postId, data, ownerId) => {
+  return await httpClient.post(`/posts/${postId}/comments?ownerId=${ownerId}`, validateInput(data));
 };
 
 // 2. Cập nhật comment theo id

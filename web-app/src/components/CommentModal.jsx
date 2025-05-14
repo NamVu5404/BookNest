@@ -158,10 +158,24 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
       setShowLoginRequiredModal(true);
       return;
     }
-
+    
     setLoadingComment(true);
     try {
-      const response = await apiCreateComment(postId, { content, parentId });
+      // Xác định ownerId: nếu là trả lời comment thì lấy userId của comment gốc, nếu không thì lấy userId của post
+      let ownerId;
+      if (parentId) {
+        const parentComment = comments.find(c => c.id === parentId) || 
+          Object.values(subComments).flat().find(c => c.id === parentId);
+        ownerId = parentComment?.profile?.userId;
+      } else {
+        ownerId = post?.profile?.userId;
+      }
+
+      if (!ownerId) {
+        throw new Error('Không tìm thấy thông tin người dùng');
+      }
+
+      const response = await apiCreateComment(postId, { content, parentId }, ownerId);
 
       if (response?.data && response?.data?.result) {
         const newComment = response.data.result;
@@ -332,13 +346,20 @@ const CommentModal = ({ commentCount, visible, postId, onClose, post }) => {
       setLikedComments(prev => ({
         ...prev,
         [commentId]: !currentLiked
-      }));
-      setLikeCounts(prev => ({
+      }));      setLikeCounts(prev => ({
         ...prev,
         [commentId]: currentLikes + (currentLiked ? -1 : 1)
       }));
 
-      await toggleLike(commentId);
+      // Tìm comment trong cả comments chính và subComments
+      const comment = comments.find(c => c.id === commentId) || 
+        Object.values(subComments).flat().find(c => c.id === commentId);
+      
+      if (!comment?.profile?.userId) {
+        throw new Error('Không tìm thấy thông tin người dùng của bình luận');
+      }
+
+      await toggleLike(commentId, comment.profile.userId);
     } catch (error) {
       // Rollback nếu có lỗi
       const currentLiked = likedComments[commentId];

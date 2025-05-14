@@ -1,9 +1,11 @@
 package com.NamVu.post.service.impl;
 
+import com.NamVu.common.constant.KafkaConstant;
 import com.NamVu.common.constant.StatusConstant;
 import com.NamVu.common.dto.PageResponse;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
+import com.NamVu.event.dto.NotificationEvent;
 import com.NamVu.post.dto.request.PostRequest;
 import com.NamVu.post.dto.response.PostEditHistoryResponse;
 import com.NamVu.post.dto.response.PostResponse;
@@ -25,6 +27,7 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -48,6 +51,7 @@ public class PostServiceImpl implements PostService {
     PostEditHistoryRepository postEditHistoryRepository;
     LikePostRepository likePostRepository;
     CommentRepository commentRepository;
+    KafkaTemplate<String, Object> kafkaTemplate;
 
     @Override
     public PageResponse<PostResponse> getAll(Pageable pageable) {
@@ -108,7 +112,23 @@ public class PostServiceImpl implements PostService {
         // Lưu bản gốc
         savePostEditHistory(post);
 
-        return toResponse(post);
+        PostResponse response = toResponse(post);
+
+        // Pub message cho tất cả friends
+        List<String> friendIds = profileClient.getAllFriendIds(userId).getResult();
+
+        friendIds.parallelStream()
+                .map(friendId -> NotificationEvent.builder()
+                        .channel("IN_APP")
+                        .sender(userId)
+                        .recipient(friendId)
+                        .templateCode("posted")
+                        .params(Map.of("senderName", response.getProfile().getFullName()))
+                        .subject("Bài viết mới từ bạn bè")
+                        .build())
+                .forEach(event -> kafkaTemplate.send(KafkaConstant.NOTIFICATION_EVENTS, event));
+
+        return response;
     }
 
     @Override

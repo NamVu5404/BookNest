@@ -5,7 +5,7 @@ import com.NamVu.post.dto.response.PublicProfileResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface LikeCommentService {
-    void toggleLike(String commentId);
+    void toggleLike(String commentId, String ownerId);
 
     PageResponse<PublicProfileResponse> getAllUserLiked(String commentId, Pageable pageable);
 }

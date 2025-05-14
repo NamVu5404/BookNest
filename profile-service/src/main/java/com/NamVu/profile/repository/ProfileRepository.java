@@ -29,6 +29,12 @@ public interface ProfileRepository extends Neo4jRepository<Profile, String> {
     List<Profile> getAllFriendsAfterLastUserId(String userId, String lastUserId, int limit);
 
     @Query("""
+            MATCH (p:Profile {userId: $userId})-[r:FRIEND]->(friend:Profile)
+            RETURN friend.userId
+            """)
+    List<String> getAllFriendIds(String userId);
+
+    @Query("""
             MATCH (me:Profile {userId: $userId})
             MATCH (p:Profile)
             WHERE p.userId <> me.userId

@@ -25,9 +25,10 @@ public class CommentController {
 
     @PostMapping("/{postId}/comments")
     public ApiResponse<CommentResponse> createComment(@PathVariable String postId,
+                                                      @RequestParam String ownerId,
                                                       @RequestBody CommentRequest request) {
         return ApiResponse.<CommentResponse>builder()
-                .result(commentService.createComment(postId, request))
+                .result(commentService.createComment(postId, request, ownerId))
                 .build();
     }
 

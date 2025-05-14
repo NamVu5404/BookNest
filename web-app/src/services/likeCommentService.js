@@ -1,8 +1,8 @@
 import httpClient from "../configurations/httpClient";
 import { getToken } from "./localStorageService";
 
-export const toggleLike = async (commentId) => {
-  return await httpClient.post(`/posts/comments/${commentId}/likes/toggle`, {
+export const toggleLike = async (commentId, ownerId) => {
+  return await httpClient.post(`/posts/comments/${commentId}/likes/toggle?ownerId=${ownerId}`, {
     headers: {
       Authorization: `Bearer ${getToken()}`,
     },

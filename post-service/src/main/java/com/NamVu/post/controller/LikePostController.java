@@ -21,8 +21,8 @@ public class LikePostController {
     LikePostService likePostService;
 
     @PostMapping("/{postId}/likes/toggle")
-    public ApiResponse<?> toggleLike(@PathVariable String postId) {
-        likePostService.toggleLike(postId);
+    public ApiResponse<?> toggleLike(@PathVariable String postId, @RequestParam String ownerId) {
+        likePostService.toggleLike(postId, ownerId);
         return ApiResponse.builder().build();
     }
 

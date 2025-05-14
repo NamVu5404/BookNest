@@ -7,6 +7,19 @@ spring:
   data:
     mongodb:
       uri: mongodb://root:root@localhost:27017/post-service?authSource=admin
+  kafka:
+    bootstrap-servers: localhost:9094
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      retries: 1
+      batch.size: 32768 # 32kB - kích thước tối đa 1 batch
+      linger.ms: 20 # 20ms - thời gian chờ trước khi gửi batch (ngay cả khi batch chưa đầy)
+      buffer.memory: 67108864 # 64MB - tổng dung lượng bộ nhớ đệm để chứa các message chờ gửi
+    properties:
+      enable.idempotence: true
+      max.in.flight.requests.per.connection: 5
 
 app:
   services:

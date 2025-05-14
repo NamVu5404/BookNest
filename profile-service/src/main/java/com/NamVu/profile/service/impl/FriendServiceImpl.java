@@ -198,6 +198,11 @@ public class FriendServiceImpl implements FriendService {
                 .build();
     }
 
+    @Override
+    public List<String> getAllFriendIds(String userId) {
+        return profileRepository.getAllFriendIds(userId);
+    }
+
     private Profile getProfile(String userId) {
         return profileRepository.findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));

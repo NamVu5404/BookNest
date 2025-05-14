@@ -7,7 +7,7 @@ import com.NamVu.post.dto.response.CommentResponse;
 import org.springframework.data.domain.Pageable;
 
 public interface CommentService {
-    CommentResponse createComment(String postId, CommentRequest request);
+    CommentResponse createComment(String postId, CommentRequest request, String ownerId);
 
     CommentResponse updateComment(String id, CommentRequest request);
 

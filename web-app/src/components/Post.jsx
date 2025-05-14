@@ -60,13 +60,13 @@ const Post = forwardRef((props, ref) => {
 
   const loadMoreLikes = async (page) => {
     if (!hasMore || loadingLikes) return;
-    
+
     try {
       setLoadingLikes(true);
       const response = await getAllUserLiked(post.id, page);
       const newUsers = response.data?.result.data || [];
       const totalPages = response.data?.result.totalPages || 1;
-      
+
       setLikedUsers(prev => page === 1 ? newUsers : [...prev, ...newUsers]);
       setHasMore(page < totalPages);
       setCurrentPage(page);
@@ -92,7 +92,7 @@ const Post = forwardRef((props, ref) => {
       }
       setIsLiked(!isLiked);
 
-      await toggleLike(post.id);
+      await toggleLike(post.id, profile.userId);
     } catch (error) {
       message.error(error.response?.data?.message || "Lỗi khi yêu thích bài viết!");
       console.error("Lỗi khi yêu thích bài viết:", error);
@@ -425,14 +425,14 @@ const Post = forwardRef((props, ref) => {
           style={{ fontSize: '15px', display: 'flex', alignItems: 'center' }}
         >
           <Tooltip title={likeCount > 0 ? "Xem những người đã thích" : null}>
-            <span 
+            <span
               className="likePost-count"
-              style={{ 
-                marginLeft: '4px', 
+              style={{
+                marginLeft: '4px',
                 cursor: likeCount > 0 ? 'pointer' : 'default',
                 color: likeCount > 0 ? '#1677ff' : 'inherit',
                 transition: 'color 0.3s',
-              }} 
+              }}
               onClick={(e) => {
                 if (likeCount > 0) {
                   e.stopPropagation();
@@ -613,10 +613,10 @@ const Post = forwardRef((props, ref) => {
         centered
         modalRender={(modal) => modal}
       >
-        <div 
-          onScroll={handleModalScroll} 
-          style={{ 
-            maxHeight: '60vh', 
+        <div
+          onScroll={handleModalScroll}
+          style={{
+            maxHeight: '60vh',
             overflowY: 'auto',
             marginRight: -24,
             marginLeft: -24,
@@ -630,7 +630,7 @@ const Post = forwardRef((props, ref) => {
               <List.Item style={{ padding: '12px 0' }}>
                 <List.Item.Meta
                   avatar={
-                    <div 
+                    <div
                       onClick={() => {
                         navigate(`/profile/${user.userId}`);
                         setIsLikesModalVisible(false);
@@ -638,24 +638,24 @@ const Post = forwardRef((props, ref) => {
                       style={{ cursor: 'pointer' }}
                     >
                       {user.avatar ? (
-                        <Avatar 
+                        <Avatar
                           className="liked-user-avatar"
-                          src={user.avatar} 
-                          style={{ 
-                            width: 40, 
+                          src={user.avatar}
+                          style={{
+                            width: 40,
                             height: 40,
                             transition: 'transform 0.3s',
-                          }} 
+                          }}
                         />
                       ) : (
-                        <Avatar 
+                        <Avatar
                           className="liked-user-avatar"
-                          icon={<UserOutlined />} 
-                          style={{ 
-                            width: 40, 
+                          icon={<UserOutlined />}
+                          style={{
+                            width: 40,
                             height: 40,
                             transition: 'transform 0.3s',
-                          }} 
+                          }}
                         />
                       )}
                     </div>
@@ -664,7 +664,7 @@ const Post = forwardRef((props, ref) => {
                     <Link
                       to={`/profile/${user.userId}`}
                       className="liked-user-name"
-                      style={{ 
+                      style={{
                         color: 'inherit',
                         fontSize: '15px',
                         fontWeight: 500,
@@ -677,10 +677,10 @@ const Post = forwardRef((props, ref) => {
               </List.Item>
             )}
             locale={{
-              emptyText: initialLoad ? 
+              emptyText: initialLoad ?
                 <div style={{ textAlign: 'center', padding: '20px' }}>
                   <Spin />
-                </div> : 
+                </div> :
                 <div style={{ padding: '20px 0', textAlign: 'center' }}>
                   Chưa có người thích bài viết này
                 </div>

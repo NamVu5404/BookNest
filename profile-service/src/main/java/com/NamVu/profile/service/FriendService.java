@@ -4,6 +4,7 @@ import com.NamVu.profile.dto.request.FriendCreateRequest;
 import com.NamVu.profile.dto.response.LimitedResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
 
+import java.util.List;
 import java.util.Set;
 
 public interface FriendService {
@@ -24,4 +25,6 @@ public interface FriendService {
     LimitedResponse<PublicProfileResponse> getAllFriends(String userId, String lastUserId, int limit);
 
     LimitedResponse<PublicProfileResponse> getFriendSuggestions(String userId, String lastUserId, int limit);
+
+    List<String> getAllFriendIds(String userId);
 }

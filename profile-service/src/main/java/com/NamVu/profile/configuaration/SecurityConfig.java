@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfig {
 
     private static final String[] PUBLIC_GET_ENDPOINTS = {
-            "/internal/users/batch", "/users/{userId}", "/users/{userId}/friends"
+            "/internal/users/batch", "/users/{userId}", "/users/{userId}/friends", "/internal/users/{userId}/friend-ids"
     };
 
     private static final String[] PUBLIC_POST_ENDPOINTS = {
@@ -33,10 +33,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
-                .authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS)
-                        .permitAll()
-                        .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS)
-                        .permitAll()
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
+                        .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
                         .anyRequest()
                         .authenticated())
                 .csrf(AbstractHttpConfigurer::disable);

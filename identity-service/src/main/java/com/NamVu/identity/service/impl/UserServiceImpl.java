@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
         profileClient.create(profileCreateRequest);
 
-        // Publish message to Kafka
+        // Publish a message to Kafka
         sendWelcomeEmail(request);
 
         return userMapper.toUserResponse(user);
