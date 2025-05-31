@@ -4,6 +4,7 @@ import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
 import jakarta.validation.ConstraintViolation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
@@ -14,19 +15,21 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.Map;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalExceptionHandler {
     private static final String MAX_ATTRIBUTE = "max";
     private static final String MIN_ATTRIBUTE = "min";
 
     @ExceptionHandler(value = Exception.class)
-    public ResponseEntity<ApiResponse<?>> exceptionHandler() {
+    public ResponseEntity<ApiResponse<?>> exceptionHandler(Exception e) {
         ApiResponse<?> apiResponse = ApiResponse.builder()
                 .code(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode())
                 .message(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage())
                 .build();
 
-        return ResponseEntity
-                .status(ErrorCode.UNCATEGORIZED_EXCEPTION.getStatusCode())
+        log.error("Uncategorized exception: {}", e.getMessage());
+
+        return ResponseEntity.status(ErrorCode.UNCATEGORIZED_EXCEPTION.getStatusCode())
                 .body(apiResponse);
     }
 
@@ -39,23 +42,22 @@ public class GlobalExceptionHandler {
                 .message(errorCode.getMessage())
                 .build();
 
-        return ResponseEntity
-                .status(errorCode.getStatusCode())
-                .body(apiResponse);
+        log.error("App exception: {}", errorCode.getMessage());
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
     public ResponseEntity<ApiResponse<?>> accessDeniedExceptionHandler() {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
 
-        return ResponseEntity
-                .status(errorCode.getStatusCode())
-                .body(
-                        ApiResponse.builder()
-                                .code(errorCode.getCode())
-                                .message(errorCode.getMessage())
-                                .build()
-                );
+        log.error("Access denied exception: {}", errorCode.getMessage());
+
+        return ResponseEntity.status(errorCode.getStatusCode())
+                .body(ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build());
     }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
@@ -69,24 +71,26 @@ public class GlobalExceptionHandler {
         try {
             errorCode = ErrorCode.valueOf(enumKey);
 
-            ConstraintViolation<?> constraintViolation = e.getBindingResult()
-                    .getAllErrors().getFirst().unwrap(ConstraintViolation.class);
+            ConstraintViolation<?> constraintViolation =
+                    e.getBindingResult().getAllErrors().getFirst().unwrap(ConstraintViolation.class);
 
             attributes = constraintViolation.getConstraintDescriptor().getAttributes();
         } catch (IllegalArgumentException ignored) {
 
         }
 
+        String errorMessage = attributes != null
+                ? mapAttribute(errorCode.getMessage(), attributes)
+                : errorCode.getMessage();
+
         ApiResponse<?> apiResponse = ApiResponse.builder()
                 .code(errorCode.getCode())
-                .message(attributes != null ?
-                        mapAttribute(errorCode.getMessage(), attributes)
-                        : errorCode.getMessage())
+                .message(errorMessage)
                 .build();
 
-        return ResponseEntity
-                .status(errorCode.getStatusCode())
-                .body(apiResponse);
+        log.error("Method argument not valid exception: {}", errorMessage);
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
     private String mapAttribute(String message, Map<String, Object> attributes) {

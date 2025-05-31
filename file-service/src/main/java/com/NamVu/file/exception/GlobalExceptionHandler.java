@@ -1,4 +1,4 @@
-package com.NamVu.post.exception;
+package com.NamVu.file.exception;
 
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.common.exception.AppException;
