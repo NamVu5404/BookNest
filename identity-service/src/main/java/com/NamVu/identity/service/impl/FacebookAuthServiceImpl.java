@@ -1,5 +1,11 @@
 package com.NamVu.identity.service.impl;
 
+import java.util.HashSet;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.NamVu.identity.constant.PredefinedRole;
 import com.NamVu.identity.dto.request.auth.ExchangeTokenRequest;
 import com.NamVu.identity.dto.request.profile.ProfileCreateRequest;
@@ -15,16 +21,12 @@ import com.NamVu.identity.repository.RoleRepository;
 import com.NamVu.identity.repository.UserRepository;
 import com.NamVu.identity.service.OutboundAuthService;
 import com.NamVu.identity.service.TokenService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.HashSet;
 
 @Service("facebook")
 @RequiredArgsConstructor

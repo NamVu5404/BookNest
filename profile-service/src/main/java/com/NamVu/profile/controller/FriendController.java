@@ -1,17 +1,19 @@
 package com.NamVu.profile.controller;
 
+import java.util.Set;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.profile.dto.request.FriendCreateRequest;
 import com.NamVu.profile.dto.response.LimitedResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
 import com.NamVu.profile.service.FriendService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,9 +42,7 @@ public class FriendController {
         } else if ("reject".equals(action)) {
             friendService.rejectFriendRequest(senderId);
         } else {
-            return ApiResponse.builder()
-                    .message("Action not found!")
-                    .build();
+            return ApiResponse.builder().message("Action not found!").build();
         }
 
         return ApiResponse.builder().build();
@@ -72,8 +72,7 @@ public class FriendController {
     public ApiResponse<LimitedResponse<PublicProfileResponse>> getAllFriends(
             @PathVariable String userId,
             @RequestParam(required = false) String lastUserId,
-            @RequestParam(defaultValue = "10") int limit
-    ) {
+            @RequestParam(defaultValue = "10") int limit) {
         return ApiResponse.<LimitedResponse<PublicProfileResponse>>builder()
                 .result(friendService.getAllFriends(userId, lastUserId, limit))
                 .build();
@@ -83,8 +82,7 @@ public class FriendController {
     public ApiResponse<LimitedResponse<PublicProfileResponse>> getFriendSuggestions(
             @RequestParam String userId,
             @RequestParam(required = false) String lastUserId,
-            @RequestParam(defaultValue = "10") int limit
-    ) {
+            @RequestParam(defaultValue = "10") int limit) {
         return ApiResponse.<LimitedResponse<PublicProfileResponse>>builder()
                 .result(friendService.getFriendSuggestions(userId, lastUserId, limit))
                 .build();

@@ -1,12 +1,14 @@
 package com.NamVu.profile.dto.request;
 
-import com.NamVu.common.validator.DobConstraint;
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+
+import com.NamVu.common.validator.DobConstraint;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
 
 @Data
 @Builder

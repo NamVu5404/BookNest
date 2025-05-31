@@ -1,5 +1,15 @@
 package com.NamVu.profile.service.impl;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.NamVu.common.constant.StatusConstant;
 import com.NamVu.common.constant.SubDirConstant;
 import com.NamVu.common.exception.AppException;
@@ -15,19 +25,11 @@ import com.NamVu.profile.mapper.ProfileMapper;
 import com.NamVu.profile.repository.ProfileRepository;
 import com.NamVu.profile.service.FriendStatusService;
 import com.NamVu.profile.service.ProfileService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -66,9 +68,9 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     public Map<String, PublicProfileResponse> getByUserIds(Set<String> userIds) {
         List<Profile> profiles = profileRepository.findByUserIdInAndIsActive(userIds, StatusConstant.ACTIVE);
-        List<PublicProfileResponse> responses = profiles.stream().map(profileMapper::toPublicProfileResponse).toList();
-        return responses.stream()
-                .collect(Collectors.toMap(PublicProfileResponse::getUserId, profile -> profile));
+        List<PublicProfileResponse> responses =
+                profiles.stream().map(profileMapper::toPublicProfileResponse).toList();
+        return responses.stream().collect(Collectors.toMap(PublicProfileResponse::getUserId, profile -> profile));
     }
 
     @Override
@@ -117,7 +119,8 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     private Profile getProfile(String userId) {
-        return profileRepository.findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
+        return profileRepository
+                .findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
     }
 }

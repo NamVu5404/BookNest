@@ -1,9 +1,9 @@
 package com.NamVu.identity.service;
 
+import java.util.List;
+
 import com.NamVu.identity.dto.request.identity.RoleRequest;
 import com.NamVu.identity.dto.response.identity.RoleResponse;
-
-import java.util.List;
 
 public interface RoleService {
     RoleResponse create(RoleRequest request);

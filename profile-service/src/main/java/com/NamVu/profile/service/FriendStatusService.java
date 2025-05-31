@@ -1,5 +1,8 @@
 package com.NamVu.profile.service;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+
 import com.NamVu.common.constant.StatusConstant;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
@@ -8,12 +11,11 @@ import com.NamVu.profile.entity.Profile;
 import com.NamVu.profile.enums.FriendStatus;
 import com.NamVu.profile.mapper.ProfileMapper;
 import com.NamVu.profile.repository.ProfileRepository;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
@@ -27,7 +29,8 @@ public class FriendStatusService {
         var response = profileMapper.toPublicProfileResponse(profile);
 
         try {
-            String currentUserId = SecurityContextHolder.getContext().getAuthentication().getName();
+            String currentUserId =
+                    SecurityContextHolder.getContext().getAuthentication().getName();
             Profile currentProfile = getProfile(currentUserId);
 
             FriendStatus status = getFriendStatus(currentProfile, profile);
@@ -68,7 +71,8 @@ public class FriendStatusService {
     }
 
     private Profile getProfile(String userId) {
-        return profileRepository.findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
+        return profileRepository
+                .findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
     }
 }

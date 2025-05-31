@@ -1,10 +1,9 @@
 package com.NamVu.profile.exception;
 
-import com.NamVu.common.dto.ApiResponse;
-import com.NamVu.common.exception.AppException;
-import com.NamVu.common.exception.ErrorCode;
+import java.util.Map;
+
 import jakarta.validation.ConstraintViolation;
-import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
@@ -12,7 +11,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.Map;
+import com.NamVu.common.dto.ApiResponse;
+import com.NamVu.common.exception.AppException;
+import com.NamVu.common.exception.ErrorCode;
+
+import lombok.extern.slf4j.Slf4j;
 
 @ControllerAdvice
 @Slf4j
@@ -79,9 +82,8 @@ public class GlobalExceptionHandler {
 
         }
 
-        String errorMessage = attributes != null
-                ? mapAttribute(errorCode.getMessage(), attributes)
-                : errorCode.getMessage();
+        String errorMessage =
+                attributes != null ? mapAttribute(errorCode.getMessage(), attributes) : errorCode.getMessage();
 
         ApiResponse<?> apiResponse = ApiResponse.builder()
                 .code(errorCode.getCode())
@@ -97,7 +99,6 @@ public class GlobalExceptionHandler {
         String maxValue = String.valueOf(attributes.get(MAX_ATTRIBUTE));
         String minValue = String.valueOf(attributes.get(MIN_ATTRIBUTE));
 
-        return message.replace("{" + MAX_ATTRIBUTE + "}", maxValue)
-                .replace("{" + MIN_ATTRIBUTE + "}", minValue);
+        return message.replace("{" + MAX_ATTRIBUTE + "}", maxValue).replace("{" + MIN_ATTRIBUTE + "}", minValue);
     }
 }

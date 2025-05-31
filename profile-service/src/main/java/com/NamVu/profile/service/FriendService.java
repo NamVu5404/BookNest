@@ -1,11 +1,11 @@
 package com.NamVu.profile.service;
 
+import java.util.List;
+import java.util.Set;
+
 import com.NamVu.profile.dto.request.FriendCreateRequest;
 import com.NamVu.profile.dto.response.LimitedResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
-
-import java.util.List;
-import java.util.Set;
 
 public interface FriendService {
     void sendFriendRequest(FriendCreateRequest request);

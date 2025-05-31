@@ -1,14 +1,15 @@
 package com.NamVu.profile.httpclient;
 
-import com.NamVu.common.dto.ApiResponse;
-import com.NamVu.profile.configuaration.AuthenticationRequestInterceptor;
-import com.NamVu.profile.dto.response.FileResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+
+import com.NamVu.common.dto.ApiResponse;
+import com.NamVu.profile.configuaration.AuthenticationRequestInterceptor;
+import com.NamVu.profile.dto.response.FileResponse;
 
 @FeignClient(
         name = "file-service",

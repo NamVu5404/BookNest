@@ -1,5 +1,13 @@
 package com.NamVu.identity.service.impl;
 
+import java.text.ParseException;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.NamVu.common.constant.StatusConstant;
 import com.NamVu.common.exception.AppException;
 import com.NamVu.common.exception.ErrorCode;
@@ -18,18 +26,12 @@ import com.NamVu.identity.service.AuthenticationService;
 import com.NamVu.identity.service.TokenService;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-
-import java.text.ParseException;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
 
 @Service
 @RequiredArgsConstructor

@@ -1,23 +1,25 @@
 package com.NamVu.identity.service.impl;
 
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
 import com.NamVu.common.constant.KafkaConstant;
 import com.NamVu.event.dto.NotificationEvent;
 import com.NamVu.identity.dto.request.otp.VerifyEmailRequest;
 import com.NamVu.identity.entity.InvalidatedOtp;
 import com.NamVu.identity.repository.InvalidatedOtpRepository;
 import com.NamVu.identity.service.OtpService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Service;
-
-import java.time.Instant;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor

@@ -1,10 +1,10 @@
 package com.NamVu.identity.dto.response.identity;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.time.Instant;
 import java.util.Set;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @NoArgsConstructor

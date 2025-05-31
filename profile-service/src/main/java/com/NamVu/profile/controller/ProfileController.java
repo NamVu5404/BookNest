@@ -1,16 +1,19 @@
 package com.NamVu.profile.controller;
 
+import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.profile.dto.request.ProfileUpdateRequest;
 import com.NamVu.profile.dto.response.PrivateProfileResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
 import com.NamVu.profile.service.ProfileService;
-import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/users")

@@ -1,5 +1,16 @@
 package com.NamVu.profile.service.impl;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.NamVu.common.constant.KafkaConstant;
 import com.NamVu.common.constant.StatusConstant;
 import com.NamVu.common.exception.AppException;
@@ -15,20 +26,11 @@ import com.NamVu.profile.mapper.ProfileMapper;
 import com.NamVu.profile.repository.ProfileRepository;
 import com.NamVu.profile.service.FriendService;
 import com.NamVu.profile.service.FriendStatusService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -60,9 +62,10 @@ public class FriendServiceImpl implements FriendService {
 
         // Check đã tồn tại lời mời kb chưa
         boolean alreadyRequested = sender.getSentRequests().stream()
-                .anyMatch(friendRequest -> friendRequest.getReceiver().getUserId().equals(receiverId))
+                        .anyMatch(friendRequest ->
+                                friendRequest.getReceiver().getUserId().equals(receiverId))
                 || sender.getReceivedRequests().stream()
-                .anyMatch(friendRequest -> friendRequest.getSenderId().equals(receiverId));
+                        .anyMatch(friendRequest -> friendRequest.getSenderId().equals(receiverId));
 
         if (alreadyRequested) {
             throw new AppException(ErrorCode.CANNOT_SEND_FRIEND_REQUEST);
@@ -187,9 +190,8 @@ public class FriendServiceImpl implements FriendService {
     public LimitedResponse<PublicProfileResponse> getFriendSuggestions(String userId, String lastUserId, int limit) {
         List<Profile> profiles = profileRepository.getFriendSuggestionsAfterLastUserId(userId, lastUserId, limit);
 
-        List<PublicProfileResponse> responses = profiles.stream()
-                .map(profileMapper::toPublicProfileResponse)
-                .toList();
+        List<PublicProfileResponse> responses =
+                profiles.stream().map(profileMapper::toPublicProfileResponse).toList();
 
         return LimitedResponse.<PublicProfileResponse>builder()
                 .limit(limit)
@@ -204,7 +206,8 @@ public class FriendServiceImpl implements FriendService {
     }
 
     private Profile getProfile(String userId) {
-        return profileRepository.findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
+        return profileRepository
+                .findByUserIdAndIsActive(userId, StatusConstant.ACTIVE)
                 .orElseThrow(() -> new AppException(ErrorCode.PROFILE_NOT_EXISTED));
     }
 

@@ -1,16 +1,18 @@
 package com.NamVu.identity.controller;
 
+import java.util.List;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.NamVu.common.dto.ApiResponse;
 import com.NamVu.identity.dto.request.identity.RoleRequest;
 import com.NamVu.identity.dto.response.identity.RoleResponse;
 import com.NamVu.identity.service.RoleService;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/roles")

@@ -1,13 +1,14 @@
 package com.NamVu.profile.service;
 
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import com.NamVu.profile.dto.request.ProfileCreateRequest;
 import com.NamVu.profile.dto.request.ProfileUpdateRequest;
 import com.NamVu.profile.dto.response.PrivateProfileResponse;
 import com.NamVu.profile.dto.response.PublicProfileResponse;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Map;
-import java.util.Set;
 
 public interface ProfileService {
     PrivateProfileResponse create(ProfileCreateRequest request);

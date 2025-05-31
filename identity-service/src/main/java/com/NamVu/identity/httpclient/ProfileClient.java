@@ -1,15 +1,16 @@
 package com.NamVu.identity.httpclient;
 
-import com.NamVu.common.dto.ApiResponse;
-import com.NamVu.identity.configuration.AuthenticationRequestInterceptor;
-import com.NamVu.identity.dto.request.profile.ProfileCreateRequest;
-import com.NamVu.identity.dto.response.profile.MyProfileResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import com.NamVu.common.dto.ApiResponse;
+import com.NamVu.identity.configuration.AuthenticationRequestInterceptor;
+import com.NamVu.identity.dto.request.profile.ProfileCreateRequest;
+import com.NamVu.identity.dto.response.profile.MyProfileResponse;
 
 @FeignClient(
         name = "profile-client",

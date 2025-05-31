@@ -1,10 +1,10 @@
 package com.NamVu.profile.dto.response;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor

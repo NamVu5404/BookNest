@@ -1,10 +1,11 @@
 package com.NamVu.profile.dto.response;
 
+import java.time.LocalDate;
+
 import com.NamVu.profile.enums.FriendStatus;
+
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDate;
 
 @Data
 @Builder
